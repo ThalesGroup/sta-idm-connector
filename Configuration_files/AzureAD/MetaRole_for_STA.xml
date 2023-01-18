@@ -1,0 +1,53 @@
+<role xmlns="http://midpoint.evolveum.com/xml/ns/public/common/common-3"
+    xmlns:c="http://midpoint.evolveum.com/xml/ns/public/common/common-3"
+    xmlns:icfs="http://midpoint.evolveum.com/xml/ns/public/connector/icf-1/resource-schema-3"
+    xmlns:org="http://midpoint.evolveum.com/xml/ns/public/common/org-3"
+    xmlns:q="http://prism.evolveum.com/xml/ns/public/query-3"
+    xmlns:ri="http://midpoint.evolveum.com/xml/ns/public/resource/instance-3"
+    xmlns:t="http://prism.evolveum.com/xml/ns/public/types-3"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    oid="22222222-3333-0000-0000-000000000000">
+    <name>MetaRole for STA</name>
+    <description>This role is used to create groups on STA along with their corresponding
+        membership.</description>
+    <lifecycleState>active</lifecycleState>
+    <iteration>0</iteration>
+    <iterationToken />
+    <displayName>MetaRole for STA</displayName>
+    <inducement>
+        <construction>
+            <resourceRef oid="33333333-0000-0000-0000-000000000000" relation="org:default"
+                type="c:ResourceType">
+            </resourceRef>
+            <kind>entitlement</kind>
+            <intent>group</intent>
+        </construction>
+    </inducement>
+    <inducement>
+        <construction>
+            <resourceRef oid="33333333-0000-0000-0000-000000000000" relation="org:default"
+                type="c:ResourceType">               
+            </resourceRef>
+            <kind>account</kind>
+            <intent>default</intent>
+            <association>
+                <ref>ri:STA Group</ref>
+                <outbound>
+                    <strength>strong</strength>
+                    <expression>
+                        <associationFromLink>
+                            <projectionDiscriminator xsi:type="c:ShadowDiscriminatorType">
+                                <kind>entitlement</kind>
+                                <intent>group</intent>
+                            </projectionDiscriminator>
+                        </associationFromLink>
+                    </expression>
+                </outbound>
+            </association>
+        </construction>
+        <order>2</order>
+        <focusType>c:UserType</focusType>
+    </inducement>
+    <requestable>false</requestable>
+    <delegable>false</delegable>
+</role>

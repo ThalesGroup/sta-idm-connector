@@ -1,44 +1,58 @@
-# Thales Open Source Template Project
+<br>
+# STA IDM Connector: Identity Connector for SafeNet Trusted Access over REST APIs
 
-Template for creating a new project in the [Thales GitHub organization](https://github.com/ThalesGroup).
+The STA IDM Connector is based on ConnId framework version 1.5.0.0. When used with midPoint (an open-source identity management and identity governance solution), the connector allows provisioning and de-provisioning of users, as well as management of their associated user groups between, SafeNet Trusted Access (STA) and a third-party directory (for example, Active Directory, Azure Active Directory, etc.).
+<br><br>
+   ![Connector](STA-sync.drawio.png)
+<br><br>
 
-Each Thales OSS project repository **MUST** contain the following files at the root:
+## Capabilities and Features ##
 
-- a `LICENSE` which has been chosen in accordance with legal department depending on your needs
+| Feature                | Supported     | Notes                                      |
+| ---------------------- | ------------- | -------------                              |
+| Provisioning           | YES           | For both users and groups                  |
+| Live Synchronization   | YES           | Only for users                             |
+| Password               | NO            | Passwords are not supported                |
+| Filtering changes      | YES           | limited attribute based                    |
+| Paging support         | YES           | Simple Page Results                        |
 
-- a `README.md` outlining the project goals, sponsoring sig, and community contact information, [GitHub tips about README.md](https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/about-readmes)
 
-- a `CONTRIBUTING.md` outlining how to contribute to the project, how to submit a pull request and an issue
+The connector is meant to be compatible with the IDM Services using ConnId framework. The connector has been tested on Evolveum midPoint
 
-- a `SECURITY.md` outlining how the security concerns are handled, [GitHub tips about SECURITY.md](https://docs.github.com/en/github/managing-security-vulnerabilities/adding-a-security-policy-to-your-repository)
 
-Below is an example of the common structure and information expected in a README.
+## How to use? ##
 
-**Please keep this structure as is and only fill the content for each section according to your project.**
+1. Download this github project and build the java project using maven.
+2. Deploy the connector jar file inside your IDM service.
+3. Restart the service (if required).
+4. Create a new connector resource and configure the basic conigurations.
 
-If you need assistance or have question, please contact oss@thalesgroup.com
+   ![Basic Configuration](basic-config.png)
 
-## Get started
+5. Select the Schema object that needs to be mapped.
 
-XXX project purpose it to ...
 
-**Please also add the description into the About section (Description field)**
+## How Synchronization works? ##
 
-## Documentation
+Synchronization of Identities Depends on the scehma mappings configured in the connector
 
-Documentation is available at [xxx/docs](https://xxx/docs/).
+1. Only mapped attributes can be imported/exported to/from STA.
+2. If STA already had a user with a similar userID which is being imported, only those attrbutes
+   that are changed will be modified.
 
-You can use [GitHub pages](https://guides.github.com/features/pages/) to create your documentation.
+## How to Build ? ##
 
-See an example here : https://github.com/ThalesGroup/ThalesGroup.github.io
+This project depends on the connID framework. Based on the IDM service version being used, use the right version into the connector pom.xml file:
+    
+    <dependency>
+     <groupId>net.tirasa.connid</groupId>
+     <artifactId>connector-framework</artifactId>
+     <version>${connId.version}</version>
+    </dependency>
 
-**Please also add the documentation URL into the About section (Website field)**
+(adjust the polygon version with the version that you use for connector parent)
 
-## Contributing
+## Limitations ##
 
-If you are interested in contributing to the XXX project, start by reading the [Contributing guide](/CONTRIBUTING.md).
-
-## License
-
-The chosen license in accordance with legal department must be defined into an explicit [LICENSE](https://github.com/ThalesGroup/template-project/blob/master/LICENSE) file at the root of the repository
-You can also link this file in this README section.
+1. Password synchronization is not supported.
+3. Group live synchronization is not supported.
