@@ -1,4 +1,4 @@
-<br>
+
 # STA IDM Connector: Identity Connector for SafeNet Trusted Access over REST APIs
 
 The STA IDM Connector is based on ConnId framework version 1.5.0.0. When used with midPoint (an open-source identity management and identity governance solution), the connector allows provisioning and de-provisioning of users, as well as management of their associated user groups between, SafeNet Trusted Access (STA) and a third-party directory (for example, Active Directory, Azure Active Directory, etc.).
@@ -10,7 +10,7 @@ The STA IDM Connector is based on ConnId framework version 1.5.0.0. When used wi
 
 | Feature                | Supported     | Notes                                      |
 | ---------------------- | ------------- | -------------                              |
-| Provisioning           | YES           | For both users and groups                  |
+| Synchronization        | YES           | For both users and groups                  |
 | Live Synchronization   | YES           | Only for users                             |
 | Password               | NO            | Passwords are not supported                |
 | Filtering changes      | YES           | limited attribute based                    |
