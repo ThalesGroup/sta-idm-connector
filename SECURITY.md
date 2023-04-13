@@ -8,7 +8,7 @@
 # Security Policy
 
 ## Supported Versions
-Only the latest code available in this repository is supported
+Only the latest code available in this repository is supported.
 
 | Version | Supported          |
 | ------- | ------------------ |
@@ -16,6 +16,6 @@ Only the latest code available in this repository is supported
 
 ## Reporting a Vulnerability
 
-For any vulnerability found in the code, please contact the support team by opening a new ticket on the [Thales Support Portal][def]
+For any vulnerability found in the code, please contact the support team by opening a new ticket on the [Thales Support Portal][def].
 
 [def]: https://supportportal.thalesgroup.com/

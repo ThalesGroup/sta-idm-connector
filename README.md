@@ -28,7 +28,11 @@ The connector is meant to be compatible with the IdM Services using ConnId frame
 
    ![Basic Configuration](basic-config.png)
 
-5. Select the Schema object that needs to be mapped.
+5. Follow next steps as per your IdM service.
+
+## Documentation
+
+Documentation is available at [Thalesdocs][def3].
 
 
 ## Contributing
@@ -42,3 +46,4 @@ The project uses [Apache-2.0 license](/LICENSE).
 
 [def]: https://docs.evolveum.com/midpoint/
 [def2]: https://cpl.thalesgroup.com/access-management/safenet-trusted-access
+[def3]: https://thalesdocs.com/sta/operator/user_synchronization/user_provisioning_through_safenet_trusted_access_idm_connector/index.html
