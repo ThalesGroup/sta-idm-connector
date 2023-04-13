@@ -24,10 +24,6 @@ public class STAFilterTranslator extends AbstractFilterTranslator<STAFilter> {
 
   @Override
   protected STAFilter createEqualsExpression(EqualsFilter filter, boolean not) {
-   /* if (not) {
-      return null; // not supported
-    }*/
-
     Attribute attribute = filter.getAttribute();
 
     if (Uid.NAME.equals(attribute.getName())) {

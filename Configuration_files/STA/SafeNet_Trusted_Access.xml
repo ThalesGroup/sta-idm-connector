@@ -12,10 +12,16 @@
     <name>SafeNet Trusted Access</name>
     <connectorRef type="c:ConnectorType">
         <filter>
-            <q:equal>
-                <q:path>c:connectorType</q:path>
-                <q:value>com.connid.sta.connector.STARestConnector</q:value>
-            </q:equal>
+            <q:and>
+                <q:equal>
+                    <q:path>c:connectorType</q:path>
+                    <q:value>com.connid.sta.connector.STARestConnector</q:value>
+                </q:equal>
+                <q:equal>
+                    <q:path>connectorVersion</q:path>
+                    <q:value>1.0.0</q:value>
+                </q:equal>
+            </q:and>
         </filter>
     </connectorRef>
     <connectorConfiguration>
@@ -164,7 +170,7 @@
                     </source>
                 </outbound>
             </attribute>
-			<attribute>
+            <attribute>
                 <ref>icfs:name</ref>
                 <tolerant>true</tolerant>
                 <exclusiveStrong>false</exclusiveStrong>
@@ -197,9 +203,13 @@
                 <outbound>
                     <authoritative>true</authoritative>
                     <exclusive>false</exclusive>
-                    <strength>normal</strength>
+                    <strength>weak</strength>
                     <expression>
-                        <value>false</value>
+                        <script>
+                            <code>
+                                return true
+                            </code>
+                        </script>
                     </expression>
                 </outbound>
             </attribute>
@@ -215,6 +225,11 @@
                 <valueAttribute>ri:id</valueAttribute>
                 <explicitReferentialIntegrity>false</explicitReferentialIntegrity>
             </association>
+            <activation>
+                <administrativeStatus>
+                    <outbound/>
+                </administrativeStatus>
+            </activation>    
         </objectType>
         <objectType>
             <kind>entitlement</kind>
@@ -248,7 +263,7 @@
                     </source>
                 </outbound>
             </attribute>
-			<attribute>
+            <attribute>
                 <ref>icfs:name</ref>
                 <tolerant>true</tolerant>
                 <exclusiveStrong>false</exclusiveStrong>
@@ -268,15 +283,18 @@
                 <outbound>
                     <authoritative>true</authoritative>
                     <exclusive>false</exclusive>
-                    <strength>normal</strength>
+                    <strength>weak</strength>
                     <expression>
-                        <value>false</value>
+                        <script>
+                            <code>
+                                return true
+                            </code>
+                        </script>
                     </expression>
                 </outbound>
             </attribute>
         </objectType>
     </schemaHandling>
-
     <synchronization>
         <objectSynchronization>
             <name>Account</name>
@@ -369,5 +387,78 @@
             </reaction>
         </objectSynchronization>
     </synchronization>
-  
+    <capabilities>
+        <native xmlns:cap="http://midpoint.evolveum.com/xml/ns/public/resource/capabilities-3">
+            <cap:schema/>
+            <cap:liveSync/>
+            <cap:testConnection/>
+            <cap:create/>
+            <cap:update>
+                <cap:delta>true</cap:delta>
+                <cap:addRemoveAttributeValues>true</cap:addRemoveAttributeValues>
+            </cap:update>
+            <cap:delete/>
+            <cap:script>
+                <cap:host>
+                    <cap:type>connector</cap:type>
+                </cap:host>
+            </cap:script>
+            <cap:read>
+                <cap:returnDefaultAttributesOption>false</cap:returnDefaultAttributesOption>
+            </cap:read>
+        </native>
+        <configured xmlns:cap="http://midpoint.evolveum.com/xml/ns/public/resource/capabilities-3">
+            <cap:liveSync>
+                <cap:enabled>true</cap:enabled>
+            </cap:liveSync>
+            <cap:testConnection>
+                <cap:enabled>true</cap:enabled>
+            </cap:testConnection>
+            <cap:create>
+                <cap:enabled>true</cap:enabled>
+            </cap:create>
+            <cap:update>
+                <cap:enabled>true</cap:enabled>
+                <cap:delta>true</cap:delta>
+                <cap:addRemoveAttributeValues>true</cap:addRemoveAttributeValues>
+            </cap:update>
+            <cap:delete>
+                <cap:enabled>true</cap:enabled>
+            </cap:delete>
+            <cap:script>
+                <cap:enabled>true</cap:enabled>
+                <cap:host>
+                    <cap:type>connector</cap:type>
+                </cap:host>
+            </cap:script>
+            <cap:read>
+                <cap:enabled>true</cap:enabled>
+                <cap:returnDefaultAttributesOption>false</cap:returnDefaultAttributesOption>
+            </cap:read>
+            <cap:activation>
+                <cap:enabled>true</cap:enabled>
+                <cap:status>
+                    <cap:enabled>true</cap:enabled>
+                    <cap:returnedByDefault>true</cap:returnedByDefault>
+                    <cap:attribute>ri:isActive</cap:attribute>
+                    <cap:enableValue>true</cap:enableValue>
+                    <cap:disableValue>false</cap:disableValue>
+                    <cap:ignoreAttribute>false</cap:ignoreAttribute>
+                </cap:status>
+                <cap:validFrom>
+                    <cap:enabled>false</cap:enabled>
+                    <cap:returnedByDefault>false</cap:returnedByDefault>
+                </cap:validFrom>
+                <cap:validTo>
+                    <cap:enabled>false</cap:enabled>
+                    <cap:returnedByDefault>false</cap:returnedByDefault>
+                </cap:validTo>
+                <cap:lockoutStatus>
+                    <cap:enabled>false</cap:enabled>
+                    <cap:returnedByDefault>false</cap:returnedByDefault>
+                    <cap:ignoreAttribute>true</cap:ignoreAttribute>
+                </cap:lockoutStatus>
+            </cap:activation>
+        </configured>
+    </capabilities>
 </resource>

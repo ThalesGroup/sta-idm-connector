@@ -16,7 +16,7 @@
                     <xsd:appinfo>
                         <a:indexed>true</a:indexed>
                         <a:displayName>City</a:displayName>
-                        <a:help></a:help>
+                        <a:help>City</a:help>
                     </xsd:appinfo>
                 </xsd:annotation>
             </xsd:element>
@@ -25,7 +25,7 @@
                     <xsd:appinfo>
                         <a:indexed>false</a:indexed>
                         <a:displayName>Country</a:displayName>
-                        <a:help></a:help>
+                        <a:help>Country</a:help>
                     </xsd:appinfo>
                 </xsd:annotation>
             </xsd:element>
@@ -34,7 +34,7 @@
                     <xsd:appinfo>
                         <a:indexed>true</a:indexed>
                         <a:displayName>State</a:displayName>
-                        <a:help></a:help>
+                        <a:help>State</a:help>
                     </xsd:appinfo>
                 </xsd:annotation>
             </xsd:element>
@@ -43,7 +43,7 @@
                     <xsd:appinfo>
                         <a:indexed>false</a:indexed>
                         <a:displayName>Postal Code</a:displayName>
-                        <a:help></a:help>
+                        <a:help>Postal Code</a:help>
                     </xsd:appinfo>
                 </xsd:annotation>
             </xsd:element>
@@ -52,7 +52,7 @@
                     <xsd:appinfo>
                         <a:indexed>false</a:indexed>
                         <a:displayName>User Principal Name</a:displayName>
-                        <a:help></a:help>
+                        <a:help>User Principal Name</a:help>
                     </xsd:appinfo>
                 </xsd:annotation>
             </xsd:element>
@@ -61,27 +61,25 @@
                     <xsd:appinfo>
                         <a:indexed>false</a:indexed>
                         <a:displayName>Immutable Id</a:displayName>
-                        <a:help></a:help>
+                        <a:help>Immutable Id</a:help>
                     </xsd:appinfo>
                 </xsd:annotation>
             </xsd:element>
-
             <xsd:element name="custom1" type="xsd:string" minOccurs="0" maxOccurs="0">
                 <xsd:annotation>
                     <xsd:appinfo>
                         <a:indexed>false</a:indexed>
                         <a:displayName>Custom 1</a:displayName>
-                        <a:help></a:help>
+                        <a:help>Custom 1</a:help>
                     </xsd:appinfo>
                 </xsd:annotation>
-
             </xsd:element>
             <xsd:element name="custom2" type="xsd:string" minOccurs="0" maxOccurs="0">
                 <xsd:annotation>
                     <xsd:appinfo>
                         <a:indexed>false</a:indexed>
                         <a:displayName>Custom 2</a:displayName>
-                        <a:help></a:help>
+                        <a:help>Custom 2</a:help>
                     </xsd:appinfo>
                 </xsd:annotation>
             </xsd:element>
@@ -90,17 +88,16 @@
                     <xsd:appinfo>
                         <a:indexed>false</a:indexed>
                         <a:displayName>Custom 3</a:displayName>
-                        <a:help></a:help>
+                        <a:help>Custom 3</a:help>
                     </xsd:appinfo>
                 </xsd:annotation>
             </xsd:element>
-
             <xsd:element name="alias1" type="xsd:string" minOccurs="0" maxOccurs="0">
                 <xsd:annotation>
                     <xsd:appinfo>
                         <a:indexed>false</a:indexed>
                         <a:displayName>Alias 1</a:displayName>
-                        <a:help></a:help>
+                        <a:help>Alias 1</a:help>
                     </xsd:appinfo>
                 </xsd:annotation>
             </xsd:element>
@@ -109,7 +106,7 @@
                     <xsd:appinfo>
                         <a:indexed>false</a:indexed>
                         <a:displayName>Alias 2</a:displayName>
-                        <a:help></a:help>
+                        <a:help>Alias 2</a:help>
                     </xsd:appinfo>
                 </xsd:annotation>
             </xsd:element>
@@ -118,7 +115,7 @@
                     <xsd:appinfo>
                         <a:indexed>false</a:indexed>
                         <a:displayName>Alias 3</a:displayName>
-                        <a:help></a:help>
+                        <a:help>Alias 3</a:help>
                     </xsd:appinfo>
                 </xsd:annotation>
             </xsd:element>
@@ -127,11 +124,10 @@
                     <xsd:appinfo>
                         <a:indexed>false</a:indexed>
                         <a:displayName>Alias 4</a:displayName>
-                        <a:help></a:help>
+                        <a:help>Alias 4</a:help>
                     </xsd:appinfo>
                 </xsd:annotation>
             </xsd:element>
-
         </xsd:sequence>
     </xsd:complexType>
 </xsd:schema>

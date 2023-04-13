@@ -175,7 +175,7 @@ public class GroupsUtil extends STAConnectorUtil {
     try {
       LOGGER.info("Delete group with Uid: {0}", uid);
       HttpDelete request = new HttpDelete(String.format("%s/%s", getGroupBaseURL(false), urlEncoder(uid.getUidValue())));
-      callRequest(request, false);
+      callRequest(request, JSONObject.class, false);
     } catch (IOException e) {
       throw new ConnectorIOException(e.getMessage(), e);
     }
@@ -183,7 +183,7 @@ public class GroupsUtil extends STAConnectorUtil {
 
   private void getGroup(STAFilter query, ResultsHandler handler) throws IOException {
     HttpGet request = new HttpGet(String.format("%s/%s", getGroupBaseURL(true), urlEncoder(query.getByUid())));
-    JSONObject groupObject = callRequest(request, true);
+    JSONObject groupObject = callRequest(request, JSONObject.class, true);
     modifySTAGroupResponse(groupObject);
     ConnectorObject connectorObject = convertGroupToConnectorObject(groupObject);
     handler.handle(connectorObject);
@@ -212,7 +212,7 @@ public class GroupsUtil extends STAConnectorUtil {
     String groupKey = "urn:ietf:params:scim:schemas:extension:stagroupextension:2.0:Group";
     String description = group.getJSONObject(groupKey).has(ATTR_GROUP_DESCRIPTION) ? group.getJSONObject(groupKey).getString(ATTR_GROUP_DESCRIPTION) : "";
     group.put(ATTR_GROUP_DESCRIPTION, description);
-    group.put(ATTR_SYNCHRONIZED, group.getJSONObject(groupKey).getBoolean(ATTR_SYNCHRONIZED));
+    group.put(ATTR_SYNCHRONIZED, group.getJSONObject(groupKey).get(ATTR_SYNCHRONIZED).toString());
     group.remove(groupKey);
     JSONArray members = group.getJSONArray(ATTR_GROUP_MEMBERS);
 
@@ -286,7 +286,7 @@ public class GroupsUtil extends STAConnectorUtil {
             urlEncoder(userID)));  // request for remove a user from a group
         delRequest.setHeader(OBJECT_ID_FORMAT, HEX);
         //request.setURI(URI.create(request.getURI().toString().concat(userID)));
-        callRequest(delRequest);
+        callRequest(delRequest, JSONObject.class, false);
       }
     }
   }
@@ -303,7 +303,7 @@ public class GroupsUtil extends STAConnectorUtil {
 
   // Processes the groups after retrieving them from STA
   private boolean processSTAGroups(HttpGet request, ResultsHandler handler) throws IOException {
-    JSONArray groups = callRequest(request);
+    JSONArray groups = callRequest(request, JSONArray.class, true);
 
     for (int i = 0; i < groups.length(); i++) {
       if (i % 10 == 0) {
@@ -311,7 +311,7 @@ public class GroupsUtil extends STAConnectorUtil {
       }
 
       HttpGet groupRequest = new HttpGet(String.format("%s/%s", getGroupBaseURL(true), groups.getJSONObject(i).getString(ATTR_UID)));
-      JSONObject group = callRequest(groupRequest, true);
+      JSONObject group = callRequest(groupRequest, JSONObject.class, true);
       modifySTAGroupResponse(group);
 
       ConnectorObject connectorObject = convertGroupToConnectorObject(group);

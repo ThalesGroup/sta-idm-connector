@@ -10,16 +10,20 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     oid="11111111-0000-0000-0000-00000000000">
     <name>Azure Active Directory</name>
-
     <connectorRef type="c:ConnectorType">
         <filter>
-            <q:equal>
-                <q:path>c:connectorType</q:path>
-                <q:value>com.evolveum.polygon.connector.msgraphapi.MSGraphConnector</q:value>
-            </q:equal>
+            <q:and>
+                <q:equal>
+                    <q:path>c:connectorType</q:path>
+                    <q:value>com.evolveum.polygon.connector.msgraphapi.MSGraphConnector</q:value>
+                </q:equal>
+                <q:equal>
+                    <q:path>connectorVersion</q:path>
+                    <q:value>1.0.0.1</q:value>
+                </q:equal>
+            </q:and>
         </filter>
     </connectorRef>
-
     <connectorConfiguration>
         <icfc:resultsHandlerConfiguration>
             <icfc:enableNormalizingResultsHandler>false</icfc:enableNormalizingResultsHandler>
@@ -34,7 +38,6 @@
             </icfcaad:clientSecret>
         </icfc:configurationProperties>
     </connectorConfiguration>
-
     <schemaHandling>
         <objectType>
             <kind>account</kind>
@@ -212,7 +215,7 @@
                     </target>
                 </inbound>
             </attribute>
-             <association>
+            <association>
                 <ref>ri:group</ref>
                 <tolerant>true</tolerant>
                 <exclusiveStrong>true</exclusiveStrong>
@@ -307,7 +310,6 @@
             </attribute>
         </objectType>
     </schemaHandling>
-
     <synchronization>
         <objectSynchronization>
             <name>Account</name>
@@ -394,4 +396,93 @@
             </reaction>
         </objectSynchronization>
     </synchronization>
+    <capabilities>
+        <native xmlns:cap="http://midpoint.evolveum.com/xml/ns/public/resource/capabilities-3">
+            <cap:schema/>
+            <cap:liveSync/>
+            <cap:testConnection/>
+            <cap:create/>
+            <cap:update>
+                <cap:delta>true</cap:delta>
+                <cap:addRemoveAttributeValues>true</cap:addRemoveAttributeValues>
+            </cap:update>
+            <cap:delete/>
+            <cap:script>
+                <cap:host>
+                    <cap:type>connector</cap:type>
+                </cap:host>
+            </cap:script>
+            <cap:activation>
+                <cap:status/>
+            </cap:activation>
+            <cap:credentials>
+                <cap:password>
+                    <cap:returnedByDefault>false</cap:returnedByDefault>
+                </cap:password>
+            </cap:credentials>
+            <cap:read>
+                <cap:returnDefaultAttributesOption>true</cap:returnDefaultAttributesOption>
+            </cap:read>
+        </native>
+        <configured xmlns:cap="http://midpoint.evolveum.com/xml/ns/public/resource/capabilities-3">
+            <cap:liveSync>
+                <cap:enabled>true</cap:enabled>
+            </cap:liveSync>
+            <cap:testConnection>
+                <cap:enabled>true</cap:enabled>
+            </cap:testConnection>
+            <cap:create>
+                <cap:enabled>true</cap:enabled>
+            </cap:create>
+            <cap:update>
+                <cap:enabled>true</cap:enabled>
+                <cap:delta>true</cap:delta>
+                <cap:addRemoveAttributeValues>true</cap:addRemoveAttributeValues>
+            </cap:update>
+            <cap:delete>
+                <cap:enabled>false</cap:enabled>
+            </cap:delete>
+            <cap:script>
+                <cap:enabled>true</cap:enabled>
+                <cap:host>
+                    <cap:type>connector</cap:type>
+                </cap:host>
+            </cap:script>
+            <cap:activation>
+                <cap:enabled>true</cap:enabled>
+                <cap:status>
+                    <cap:enabled>true</cap:enabled>
+                    <cap:returnedByDefault>false</cap:returnedByDefault>
+                    <cap:attribute>ri:accountEnabled</cap:attribute>
+                    <cap:enableValue>true</cap:enableValue>
+                    <cap:disableValue>false</cap:disableValue>
+                    <cap:ignoreAttribute>false</cap:ignoreAttribute>
+                </cap:status>
+                <cap:validFrom>
+                    <cap:enabled>false</cap:enabled>
+                    <cap:returnedByDefault>false</cap:returnedByDefault>
+                </cap:validFrom>
+                <cap:validTo>
+                    <cap:enabled>false</cap:enabled>
+                    <cap:returnedByDefault>false</cap:returnedByDefault>
+                </cap:validTo>
+                <cap:lockoutStatus>
+                    <cap:enabled>false</cap:enabled>
+                    <cap:returnedByDefault>false</cap:returnedByDefault>
+                    <cap:ignoreAttribute>false</cap:ignoreAttribute>
+                </cap:lockoutStatus>
+            </cap:activation>
+            <cap:credentials>
+                <cap:enabled>true</cap:enabled>
+                <cap:password>
+                    <cap:enabled>true</cap:enabled>
+                    <cap:returnedByDefault>false</cap:returnedByDefault>
+                </cap:password>
+            </cap:credentials>
+            <cap:read>
+                <cap:enabled>true</cap:enabled>
+                <cap:returnDefaultAttributesOption>true</cap:returnDefaultAttributesOption>
+            </cap:read>
+        </configured>
+    </capabilities>
 </resource>

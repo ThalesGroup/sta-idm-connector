@@ -13,10 +13,16 @@
 
     <connectorRef type="c:ConnectorType">
         <filter>
-            <q:equal>
+            <q:and>
+                <q:equal>
                 <q:path>c:connectorType</q:path>
                 <q:value>com.evolveum.polygon.connector.ldap.ad.AdLdapConnector</q:value>
             </q:equal>
+            <q:equal>
+                <q:path>connectorVersion</q:path>
+                <q:value>3.3</q:value>
+            </q:equal>
+        </q:and>
         </filter>
     </connectorRef>
 
@@ -30,23 +36,21 @@
             <icfcad:host>example.com</icfcad:host>
             <icfcad:port>636</icfcad:port>
             <icfcad:connectionSecurity>ssl</icfcad:connectionSecurity>
-            <icfcad:sslProtocol>SSL</icfcad:sslProtocol>
-            <icfcad:bindDn>CN=Administrator,CN=Users,DC=example,DC=com</icfcad:bindDn>
+            <icfcad:sslProtocol>TLSv1.2</icfcad:sslProtocol>
+            <icfcad:bindDn>CN=IdM-Admin,CN=Users,DC=example,DC=com</icfcad:bindDn>
             <icfcad:bindPassword>
                 <clearValue>secret</clearValue>
             </icfcad:bindPassword>
-            <icfcad:baseContext>CN=Users,DC=example,DC=com</icfcad:baseContext>
+            <icfcad:baseContext>DC=example,DC=com</icfcad:baseContext>
             <icfcad:pagingBlockSize>20</icfcad:pagingBlockSize>
         </icfc:configurationProperties>
     </connectorConfiguration>
-
     <schema>
         <generationConstraints>
             <generateObjectClass>ri:user</generateObjectClass>
             <generateObjectClass>ri:group</generateObjectClass>
         </generationConstraints>
     </schema>
-
     <schemaHandling>
         <objectType>
             <kind>account</kind>
@@ -82,6 +86,7 @@
                         <path>name</path>
                     </target>
                 </inbound>
+                
             </attribute>
             <attribute>
                 <ref>ri:sn</ref>
@@ -260,8 +265,7 @@
                                     <expression>
                                         <script>
                                             <code>
-                                                return basic.getAttributeValue(entitlement,
-                                                'cn')
+                                                return basic.getAttributeValue(entitlement, 'cn')
                                             </code>
                                         </script>
                                     </expression>
@@ -312,7 +316,6 @@
             </attribute>
         </objectType>
     </schemaHandling>
-
     <synchronization>
         <objectSynchronization>
             <name>Account</name>
@@ -399,4 +402,98 @@
             </reaction>
         </objectSynchronization>
     </synchronization>
+    <capabilities>
+        <native xmlns:cap="http://midpoint.evolveum.com/xml/ns/public/resource/capabilities-3">
+            <cap:schema/>
+            <cap:liveSync/>
+            <cap:testConnection/>
+            <cap:create/>
+            <cap:update>
+                <cap:delta>true</cap:delta>
+                <cap:addRemoveAttributeValues>true</cap:addRemoveAttributeValues>
+            </cap:update>
+            <cap:delete/>
+            <cap:script>
+                <cap:host>
+                    <cap:type>connector</cap:type>
+                </cap:host>
+            </cap:script>
+            <cap:activation>
+                <cap:status/>
+            </cap:activation>
+            <cap:credentials>
+                <cap:password>
+                    <cap:returnedByDefault>false</cap:returnedByDefault>
+                </cap:password>
+            </cap:credentials>
+            <cap:auxiliaryObjectClasses/>
+            <cap:pagedSearch/>
+            <cap:read>
+                <cap:returnDefaultAttributesOption>true</cap:returnDefaultAttributesOption>
+            </cap:read>
+        </native>
+        <configured xmlns:cap="http://midpoint.evolveum.com/xml/ns/public/resource/capabilities-3">
+            <cap:liveSync>
+                <cap:enabled>true</cap:enabled>
+            </cap:liveSync>
+            <cap:testConnection>
+                <cap:enabled>true</cap:enabled>
+            </cap:testConnection>
+            <cap:create>
+                <cap:enabled>true</cap:enabled>
+            </cap:create>
+            <cap:update>
+                <cap:enabled>true</cap:enabled>
+                <cap:delta>true</cap:delta>
+                <cap:addRemoveAttributeValues>true</cap:addRemoveAttributeValues>
+            </cap:update>
+            <cap:delete>
+                <cap:enabled>false</cap:enabled>
+            </cap:delete>
+            <cap:script>
+                <cap:enabled>true</cap:enabled>
+                <cap:host>
+                    <cap:type>connector</cap:type>
+                </cap:host>
+            </cap:script>
+            <cap:activation>
+                <cap:enabled>true</cap:enabled>
+                <cap:status>
+                    <cap:enabled>true</cap:enabled>
+                    <cap:returnedByDefault>false</cap:returnedByDefault>
+                    <cap:attribute>ri:userAccountControl</cap:attribute>
+                    <cap:enableValue>Enabled</cap:enableValue>
+                    <cap:disableValue>Disabled</cap:disableValue>
+                    <cap:ignoreAttribute>false</cap:ignoreAttribute>
+                </cap:status>
+                <cap:validFrom>
+                    <cap:enabled>false</cap:enabled>
+                    <cap:returnedByDefault>false</cap:returnedByDefault>
+                </cap:validFrom>
+                <cap:validTo>
+                    <cap:enabled>false</cap:enabled>
+                    <cap:returnedByDefault>false</cap:returnedByDefault>
+                </cap:validTo>
+                <cap:lockoutStatus>
+                    <cap:enabled>false</cap:enabled>
+                    <cap:returnedByDefault>false</cap:returnedByDefault>
+                    <cap:ignoreAttribute>true</cap:ignoreAttribute>
+                </cap:lockoutStatus>
+            </cap:activation>
+            <cap:credentials>
+                <cap:enabled>true</cap:enabled>
+                <cap:password>
+                    <cap:enabled>true</cap:enabled>
+                    <cap:returnedByDefault>false</cap:returnedByDefault>
+                </cap:password>
+            </cap:credentials>
+            <cap:auxiliaryObjectClasses>
+                <cap:enabled>true</cap:enabled>
+            </cap:auxiliaryObjectClasses>
+            <cap:read>
+                <cap:enabled>true</cap:enabled>
+                <cap:returnDefaultAttributesOption>true</cap:returnDefaultAttributesOption>
+            </cap:read>
+        </configured>
+    </capabilities>
 </resource>

@@ -16,29 +16,21 @@
 package com.connid.sta.connector;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.util.EntityUtils;
 import org.identityconnectors.common.logging.Log;
-import org.identityconnectors.framework.common.exceptions.ConnectorIOException;
 import org.identityconnectors.framework.common.exceptions.InvalidAttributeValueException;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.AttributeDelta;
-import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.identityconnectors.framework.common.objects.ResultsHandler;
 import org.identityconnectors.framework.common.objects.Schema;
 import org.identityconnectors.framework.common.objects.SchemaBuilder;
-import org.identityconnectors.framework.common.objects.SyncDeltaBuilder;
-import org.identityconnectors.framework.common.objects.SyncDeltaType;
 import org.identityconnectors.framework.common.objects.SyncResultsHandler;
 import org.identityconnectors.framework.common.objects.SyncToken;
 import org.identityconnectors.framework.common.objects.Uid;
@@ -55,8 +47,6 @@ import org.identityconnectors.framework.spi.operations.SyncOp;
 import org.identityconnectors.framework.spi.operations.TestOp;
 import org.identityconnectors.framework.spi.operations.UpdateDeltaOp;
 import org.identityconnectors.framework.spi.operations.UpdateOp;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 @ConnectorClass(displayNameKey = "REST based connector for SafeNet Trusted Access", configurationClass = STARestConfiguration.class)
 public class STARestConnector
@@ -75,6 +65,8 @@ public class STARestConnector
   public void init(Configuration configuration) {
     LOGGER.info("Initializing STA IdM connector");
     this.configuration = (STARestConfiguration) configuration;
+    this.configuration.validate();
+    test();     // to do additional automatic testing
   }
 
   @Override
@@ -86,6 +78,7 @@ public class STARestConnector
   @Override
   // Method for testing the initial validation of the API key
   public void test() {
+
     HttpGet testRequest = new HttpGet(configuration.getAPIBaseURL() + AUTHORIZED);
     CloseableHttpResponse testResponse = getSTAConnectorUtil().execute(testRequest);
     getSTAConnectorUtil().processResponse(testResponse);
@@ -243,62 +236,10 @@ public class STARestConnector
   @Override
   public void sync(ObjectClass objectClass, SyncToken token, SyncResultsHandler handler, OperationOptions options) {
     if (objectClass.is(ObjectClass.ACCOUNT_NAME)) {
-      if (token == null) {
-        token = getLatestSyncToken(objectClass);
-      }
-
-      LOGGER.info("STARTING SYNC for {0} with Sync Token = {1}", ObjectClass.ACCOUNT_NAME, token);
-      /*
-            Call SCIM Api to get
-            1. list of Users
-            2. total count of users
-            3. users per page
-            */
-
-      int processedUsers = 0;
-      HttpRequestBase scimRequest = new HttpGet(getUsersUtil().getUserBaseURL(true));
-      CloseableHttpResponse response = getSTAConnectorUtil().execute(scimRequest);
-
-      String result;
-      try {
-        result = EntityUtils.toString(response.getEntity());
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-      getSTAConnectorUtil().closeResponse(response);
-      JSONObject responsejson = new JSONObject(result);
-
-      try {
-        findUsersToSync(responsejson.getJSONArray("Resources"), token, handler, processedUsers);
-      } catch (UnsupportedEncodingException e) {
-        throw new RuntimeException(e);
-      }
-
-      int totalUsers = (int) responsejson.get("totalResults");
-      int itemsPerPage = (int) responsejson.get("itemsPerPage");
-      int startIndex = (int) responsejson.get("startIndex");
-      startIndex++;
-      int totalPages = totalUsers / itemsPerPage + 1;
-
-      while (startIndex <= totalPages) {
-        HttpRequestBase nextScimRequest = new HttpGet(String.format("%s?startIndex=%d", getUsersUtil().getUserBaseURL(true), startIndex));
-        CloseableHttpResponse nextResponse = getSTAConnectorUtil().execute(nextScimRequest);
-
-        String nextResult;
-        try {
-          nextResult = EntityUtils.toString(nextResponse.getEntity());
-        } catch (IOException e) {
-          throw new RuntimeException(e);
-        }
-        getSTAConnectorUtil().closeResponse(nextResponse);
-        JSONObject nextResponseJson = new JSONObject(nextResult);
-        try {
-          findUsersToSync(nextResponseJson.getJSONArray("Resources"), token, handler, processedUsers);
-        } catch (UnsupportedEncodingException e) {
-          throw new RuntimeException(e);
-        }
-        startIndex++;
-      }
+      getUsersUtil().liveSyncForUsers(token, handler);
+    } else {
+      LOGGER.error("Could not run live synchronization for groups. Only live synchronization for users is supported currently.");
+      throw new UnsupportedOperationException("Could not run live synchronization for groups. Only live synchronization for users is supported currently.");
     }
   }
 
@@ -306,35 +247,6 @@ public class STARestConnector
   // Returns the current time stamp as of the latest syncToken
   public SyncToken getLatestSyncToken(ObjectClass objectClass) {
     return new SyncToken(System.currentTimeMillis());
-  }
-
-  // Utility function for sync to find the user records that have changed since the last sync
-  public void findUsersToSync(JSONArray users, SyncToken token, SyncResultsHandler handler, int processedUsers) throws UnsupportedEncodingException {
-    for (int i = 0; i < users.length(); i++) {
-      String modifiedTIme = (String) users.getJSONObject(i).getJSONObject("meta").get("lastModified");
-      long usersModifiedTimeInMillis = Instant.parse(modifiedTIme).toEpochMilli();
-
-      try {
-        if (usersModifiedTimeInMillis > (Long) token.getValue()) {
-          processedUsers++;
-          HttpGet request = new HttpGet(String.format("%s/%s?isUid=false", getUsersUtil().getUserBaseURL(false),
-              getSTAConnectorUtil().urlEncoder((String) users.getJSONObject(i).get("userName"))));
-          request.setHeader("Object-Id-Format", "hex");
-          JSONObject userObject = getSTAConnectorUtil().callRequest(request, true);
-          ConnectorObject connectorObject = getUsersUtil().convertUserToConnectorObject(userObject);
-
-          SyncDeltaBuilder builder = new SyncDeltaBuilder();
-          builder.setDeltaType(SyncDeltaType.CREATE_OR_UPDATE);
-          builder.setObjectClass(ObjectClass.ACCOUNT);
-          SyncToken finalToken = getLatestSyncToken(ObjectClass.ACCOUNT);
-          builder.setToken(finalToken);
-          builder.setObject(connectorObject);
-          handler.handle(builder.build());
-        }
-      } catch (IOException e) {
-        throw new ConnectorIOException(e.getMessage(), e);
-      }
-    }
   }
 }
 

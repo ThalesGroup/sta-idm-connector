@@ -16,7 +16,7 @@
   -->
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xmlns="http://maven.apache.org/POM/4.0.0"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="https://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -40,17 +40,17 @@
         <repository>
             <id>evolveum-nexus-releases</id>
             <name>Internal Releases</name>
-            <url>http://nexus.evolveum.com/nexus/content/repositories/releases/</url>
+            <url>https://nexus.evolveum.com/nexus/content/repositories/releases/</url>
         </repository>
         <repository>
             <id>evolveum-nexus-snapshots</id>
             <name>Internal Releases</name>
-            <url>http://nexus.evolveum.com/nexus/content/repositories/snapshots/</url>
+            <url>https://nexus.evolveum.com/nexus/content/repositories/snapshots/</url>
         </repository>
         <repository>
             <id>apache-snapshots</id>
             <name>Apache Snapshots</name>
-            <url>http://repository.apache.org/snapshots/</url>
+            <url>https://repository.apache.org/snapshots/</url>
         </repository>
     </repositories>
 
@@ -103,5 +103,4 @@
             <scope>compile</scope>
         </dependency>
     </dependencies>
-
 </project>

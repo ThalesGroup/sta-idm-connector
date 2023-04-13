@@ -15,7 +15,12 @@
  */
 package com.connid.sta.connector;
 
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import org.identityconnectors.common.StringUtil;
 import org.identityconnectors.common.security.GuardedString;
+import org.identityconnectors.framework.common.exceptions.ConfigurationException;
 import org.identityconnectors.framework.spi.AbstractConfiguration;
 import org.identityconnectors.framework.spi.ConfigurationProperty;
 
@@ -24,7 +29,7 @@ public class STARestConfiguration extends AbstractConfiguration {
   private int pageSize = 20;
   private String apiBaseUrl;
 
-  @ConfigurationProperty(order = 15, displayMessageKey = "Api Key", helpMessageKey = "The Api Key for your STA tenant.", required = true)
+  @ConfigurationProperty(order = 15, displayMessageKey = "Api Key", helpMessageKey = "The Api Key for your STA tenant", required = true)
   public GuardedString getApiKey() {
     return this.apikey;
   }
@@ -33,7 +38,7 @@ public class STARestConfiguration extends AbstractConfiguration {
     this.apikey = apikey;
   }
 
-  @ConfigurationProperty(order = 12, displayMessageKey = "Page Size", helpMessageKey = "The number of records to fetch in each request.", required = true)
+  @ConfigurationProperty(order = 12, displayMessageKey = "Page Size", helpMessageKey = "The number of records to return for each request.", required = true)
   public int getPageSize() {
     return this.pageSize;
   }
@@ -51,7 +56,21 @@ public class STARestConfiguration extends AbstractConfiguration {
     this.apiBaseUrl = apiBaseUrl;
   }
 
+  @Override
+  //Determines if the configuration is valid
   public void validate() {
-    //todo
+    if (apikey == null) {
+      throw new ConfigurationException("Api Key cannot be empty");
+    }
+
+    if (StringUtil.isBlank(apiBaseUrl)) {
+      throw new ConfigurationException("REST API Endpoint URL cannot be empty");
+    } else {
+      try {
+        new URL(apiBaseUrl).toURI().toURL();
+      } catch (MalformedURLException | URISyntaxException e) {
+        throw new RuntimeException("The value entered for REST API Endpoint URL (" + apiBaseUrl + ") is not a valid URL", e);
+      }
+    }
   }
 }

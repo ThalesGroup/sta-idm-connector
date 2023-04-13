@@ -16,13 +16,18 @@
 package com.connid.sta.connector;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.time.Instant;
 import java.util.Set;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.util.EntityUtils;
 import org.identityconnectors.common.StringUtil;
 import org.identityconnectors.framework.common.exceptions.ConnectorIOException;
 import org.identityconnectors.framework.common.exceptions.InvalidAttributeValueException;
@@ -36,6 +41,10 @@ import org.identityconnectors.framework.common.objects.ObjectClassInfoBuilder;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.identityconnectors.framework.common.objects.ResultsHandler;
 import org.identityconnectors.framework.common.objects.SchemaBuilder;
+import org.identityconnectors.framework.common.objects.SyncDeltaBuilder;
+import org.identityconnectors.framework.common.objects.SyncDeltaType;
+import org.identityconnectors.framework.common.objects.SyncResultsHandler;
+import org.identityconnectors.framework.common.objects.SyncToken;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -176,7 +185,6 @@ public class UsersUtil extends STAConnectorUtil {
     objectClassInfoBuilder.addAttributeInfo(attributeImmutableBuilder.build());
 
     AttributeInfoBuilder attributeStatusBuilder = new AttributeInfoBuilder(ATTR_STATUS);
-    attributeStatusBuilder.setType(boolean.class);
     objectClassInfoBuilder.addAttributeInfo(attributeStatusBuilder.build());
 
     AttributeInfoBuilder attributeCustom1Builder = new AttributeInfoBuilder(ATTR_CUSTOM_1);
@@ -211,7 +219,7 @@ public class UsersUtil extends STAConnectorUtil {
   private void getUser(STAFilter query, ResultsHandler handler) throws IOException {
     HttpGet request = new HttpGet(String.format("%s/%s?isUid=true", getUserBaseURL(false), urlEncoder(query.getByUid())));
     request.setHeader(OBJECT_ID_FORMAT, HEX);
-    JSONObject userObject = callRequest(request, true);
+    JSONObject userObject = callRequest(request, JSONObject.class, true);
     ConnectorObject connectorObject = convertUserToConnectorObject(userObject);
     handler.handle(connectorObject);
   }
@@ -319,7 +327,7 @@ public class UsersUtil extends STAConnectorUtil {
       HttpDelete request = new HttpDelete(String.format("%s/%s", getUserBaseURL(false), urlEncoder(uid.getUidValue())));
       request.setHeader("Object-Id-Name", "ObjectId");
       request.setHeader(OBJECT_ID_FORMAT, HEX);
-      callRequest(request, false);
+      callRequest(request, JSONObject.class, false);
     } catch (IOException e) {
       throw new ConnectorIOException(e.getMessage(), e);
     }
@@ -359,8 +367,7 @@ public class UsersUtil extends STAConnectorUtil {
     getIfExists(user, ATTR_EXTERNAL_ID, builder);
     getIfExists(user, ATTR_IMMUTABLE_ID, builder);
 
-    ConnectorObject connectorObject = builder.build();
-    return connectorObject;
+    return builder.build();
   }
 
   // Returns the base URLs for API calls that are related to users
@@ -375,7 +382,7 @@ public class UsersUtil extends STAConnectorUtil {
 
   // Processes the users after retrieving them from STA
   private boolean processSTAUsers(HttpGet request, ResultsHandler handler) throws IOException {
-    JSONArray users = callRequest(request);
+    JSONArray users = callRequest(request, JSONArray.class, true);
 
     for (int i = 0; i < users.length(); i++) {
       if (i % 10 == 0) {
@@ -391,5 +398,93 @@ public class UsersUtil extends STAConnectorUtil {
     }
     // last page exceed
     return getConfiguration().getPageSize() > users.length();
+  }
+
+  public void liveSyncForUsers(SyncToken token, SyncResultsHandler handler) {
+    if (token == null) {
+      //token = getLatestSyncToken(objectClass);
+      token = new STARestConnector().getLatestSyncToken(ObjectClass.ACCOUNT);
+    }
+
+    LOGGER.info("STARTING SYNC for {0} with Sync Token = {1}", ObjectClass.ACCOUNT_NAME, token);
+      /*
+            Call SCIM Api to get
+            1. list of Users
+            2. total count of users
+            3. users per page
+            */
+
+    int processedUsers = 0;
+    HttpRequestBase scimRequest = new HttpGet(getUserBaseURL(true));
+    CloseableHttpResponse response = execute(scimRequest);
+
+    String result;
+    try {
+      result = EntityUtils.toString(response.getEntity());
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+    closeResponse(response);
+    JSONObject responsejson = new JSONObject(result);
+
+    try {
+      findUsersToSync(responsejson.getJSONArray("Resources"), token, handler, processedUsers);
+    } catch (UnsupportedEncodingException e) {
+      throw new RuntimeException(e);
+    }
+
+    int totalUsers = (int) responsejson.get("totalResults");
+    int itemsPerPage = (int) responsejson.get("itemsPerPage");
+    int startIndex = (int) responsejson.get("startIndex");
+    startIndex++;
+    int totalPages = totalUsers / itemsPerPage + 1;
+
+    while (startIndex <= totalPages) {
+      HttpRequestBase nextScimRequest = new HttpGet(String.format("%s?startIndex=%d", getUserBaseURL(true), startIndex));
+      CloseableHttpResponse nextResponse = execute(nextScimRequest);
+
+      String nextResult;
+      try {
+        nextResult = EntityUtils.toString(nextResponse.getEntity());
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+      closeResponse(nextResponse);
+      JSONObject nextResponseJson = new JSONObject(nextResult);
+      try {
+        findUsersToSync(nextResponseJson.getJSONArray("Resources"), token, handler, processedUsers);
+      } catch (UnsupportedEncodingException e) {
+        throw new RuntimeException(e);
+      }
+      startIndex++;
+    }
+  }
+
+  // Utility function for sync to find the user records that have changed since the last sync
+  public void findUsersToSync(JSONArray users, SyncToken token, SyncResultsHandler handler, int processedUsers) throws UnsupportedEncodingException {
+    for (int i = 0; i < users.length(); i++) {
+      String modifiedTIme = (String) users.getJSONObject(i).getJSONObject("meta").get("lastModified");
+      long usersModifiedTimeInMillis = Instant.parse(modifiedTIme).toEpochMilli();
+
+      try {
+        if (usersModifiedTimeInMillis > (Long) token.getValue()) {
+          processedUsers++;
+          HttpGet request = new HttpGet(String.format("%s/%s?isUid=false", getUserBaseURL(false), urlEncoder((String) users.getJSONObject(i).get("userName"))));
+          request.setHeader("Object-Id-Format", "hex");
+          JSONObject userObject = callRequest(request, JSONObject.class, true);
+          ConnectorObject connectorObject = convertUserToConnectorObject(userObject);
+
+          SyncDeltaBuilder builder = new SyncDeltaBuilder();
+          builder.setDeltaType(SyncDeltaType.CREATE_OR_UPDATE);
+          builder.setObjectClass(ObjectClass.ACCOUNT);
+          SyncToken finalToken = new STARestConnector().getLatestSyncToken(ObjectClass.ACCOUNT);
+          builder.setToken(finalToken);
+          builder.setObject(connectorObject);
+          handler.handle(builder.build());
+        }
+      } catch (IOException e) {
+        throw new ConnectorIOException(e.getMessage(), e);
+      }
+    }
   }
 }

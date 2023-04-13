@@ -1,5 +1,0 @@
-
-The documents contains links to download the configuration XMLs and reference to other configuration documents.
-The link are currently in private mode. Hence, they are inaccessible.  
-
-You can get the required files in the package itself.

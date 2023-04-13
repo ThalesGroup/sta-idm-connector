@@ -238,7 +238,7 @@ public class STAConnectorUtil {
   }
 
   // Returns the JSON array of users/groups that are retrieved from STA
-  protected JSONArray callRequest(HttpRequestBase request) throws IOException, JSONException {
+  /*protected JSONArray callRequest(HttpRequestBase request) throws IOException, JSONException {
     if (request.toString().contains("scim")) {
       request.setHeader("Content-Type", SCIM_CONTENT_TYPE);
       CloseableHttpResponse response = execute(request);
@@ -299,7 +299,43 @@ public class STAConnectorUtil {
     } catch (Exception e) {
       throw new RuntimeException(result);
     }
+  }*/
+
+  protected <T> T callRequest(HttpRequestBase request, Class<T> type, boolean parseResult) throws IOException {
+    request.setHeader("Content-Type", REST_CONTENT_TYPE);
+    CloseableHttpResponse response = execute(request);
+    processResponse(response);
+
+    if (!parseResult) {
+      closeResponse(response);
+      return null;
+    }
+
+    String result = EntityUtils.toString(response.getEntity());
+    closeResponse(response);
+
+    if (StringUtil.isBlank(result) && (type == JSONObject.class)) {
+      return (T) new JSONObject();
+    }
+
+    try {
+      if (type == JSONArray.class) {
+        JSONObject responsejson = new JSONObject(result);
+        if (request.toString().contains("scim")) {
+          return (T) responsejson.getJSONArray("Resources");
+        } else {
+          JSONObject inside = (JSONObject) responsejson.get("page");
+          return (T) ((JSONArray) inside.get("items"));
+        }
+      } else if (type == JSONObject.class) {
+        return (T) new JSONObject(result);
+      }
+    } catch (JSONException e) {
+      throw new RuntimeException(result);
+    }
+    return null;
   }
+
 
   // Return the JSON object for a particular user/group after creating or updating the user in STA
   protected JSONObject callRequest(HttpEntityEnclosingRequestBase request, JSONObject requestBody) throws IOException {
