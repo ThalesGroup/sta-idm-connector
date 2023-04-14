@@ -1,44 +1,49 @@
-# Thales Open Source Template Project
 
-Template for creating a new project in the [Thales GitHub organization](https://github.com/ThalesGroup).
-
-Each Thales OSS project repository **MUST** contain the following files at the root:
-
-- a `LICENSE` which has been chosen in accordance with legal department depending on your needs
-
-- a `README.md` outlining the project goals, sponsoring sig, and community contact information, [GitHub tips about README.md](https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/about-readmes)
-
-- a `CONTRIBUTING.md` outlining how to contribute to the project, how to submit a pull request and an issue
-
-- a `SECURITY.md` outlining how the security concerns are handled, [GitHub tips about SECURITY.md](https://docs.github.com/en/github/managing-security-vulnerabilities/adding-a-security-policy-to-your-repository)
-
-Below is an example of the common structure and information expected in a README.
-
-**Please keep this structure as is and only fill the content for each section according to your project.**
-
-If you need assistance or have question, please contact oss@thalesgroup.com
+# STA IdM Connector: Identity Connector for SafeNet Trusted Access over REST APIs
 
 ## Get started
 
-XXX project purpose it to ...
+The STA IdM Connector is based on ConnId framework version 1.5.0.0. When used with [midPoint][def] (an open-source identity management and identity governance solution), the connector allows provisioning and de-provisioning of users, as well as management of their associated user groups between, [SafeNet Trusted Access (STA)][def2] and a third-party directory (for example, Microsoft Active Directory, Microsoft Azure Active Directory, etc.).
 
-**Please also add the description into the About section (Description field)**
+### Capabilities and Features
+
+| Feature                | Supported?    | Notes                                      |
+| ---------------------- | ------------- | ----------------------------               |
+| User synchronization   | YES           | Supports all CRUD operations               |
+| Group synchronization  | YES           | Supports all CRUD operations               |
+| Live Synchronization   | YES           | Supported only for users                   |
+| Password               | NO            | Password sync is currently not supported   |
+| Paging support         | YES           | Simple page results                        |
+
+
+The connector is meant to be compatible with the IdM Services using ConnId framework. The connector has been tested on Evolveum midPoint.
+
+
+### How to use?
+
+1. Download the connector from the release section.
+2. Deploy the connector jar file inside your IdM service, for example, midPoint.
+3. Restart the service (if required).
+4. Create a new connector instance and configure the basic configurations.
+
+   ![Basic Configuration](basic-config.png)
+
+5. Follow next steps as per your IdM service.
 
 ## Documentation
 
-Documentation is available at [xxx/docs](https://xxx/docs/).
+Documentation is available at [Thalesdocs][def3].
 
-You can use [GitHub pages](https://guides.github.com/features/pages/) to create your documentation.
-
-See an example here : https://github.com/ThalesGroup/ThalesGroup.github.io
-
-**Please also add the documentation URL into the About section (Website field)**
 
 ## Contributing
 
-If you are interested in contributing to the XXX project, start by reading the [Contributing guide](/CONTRIBUTING.md).
+If you are interested in contributing to the STA IdM connector project, start by reading the [Contributing guide](/CONTRIBUTING.md).
+
 
 ## License
 
-The chosen license in accordance with legal department must be defined into an explicit [LICENSE](https://github.com/ThalesGroup/template-project/blob/master/LICENSE) file at the root of the repository
-You can also link this file in this README section.
+The project uses [Apache-2.0 license](/LICENSE).
+
+[def]: https://docs.evolveum.com/midpoint/
+[def2]: https://cpl.thalesgroup.com/access-management/safenet-trusted-access
+[def3]: https://thalesdocs.com/sta/operator/user_synchronization/user_provisioning_through_safenet_trusted_access_idm_connector/index.html
