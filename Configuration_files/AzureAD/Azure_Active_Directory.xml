@@ -19,7 +19,7 @@
                 </q:equal>
                 <q:equal>
                     <q:path>connectorVersion</q:path>
-                    <q:value>1.0.0.1</q:value>
+                    <q:value>1.1.0.1</q:value>
                 </q:equal>
             </q:and>
         </filter>

@@ -8,7 +8,7 @@
     <name>User Template for AD</name>
     <mapping>
         <name>Role assignment</name>
-        <strength>weak</strength>
+        <strength>normal</strength>
         <expression>
             <assignmentTargetSearch>
                 <targetType>c:RoleType</targetType>
