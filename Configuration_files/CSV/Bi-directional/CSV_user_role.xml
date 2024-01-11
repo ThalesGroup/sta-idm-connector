@@ -1,0 +1,17 @@
+<role xmlns="http://midpoint.evolveum.com/xml/ns/public/common/common-3" xmlns:c="http://midpoint.evolveum.com/xml/ns/public/common/common-3" xmlns:icfs="http://midpoint.evolveum.com/xml/ns/public/connector/icf-1/resource-schema-3" xmlns:org="http://midpoint.evolveum.com/xml/ns/public/common/org-3" xmlns:q="http://prism.evolveum.com/xml/ns/public/query-3" xmlns:ri="http://midpoint.evolveum.com/xml/ns/public/resource/instance-3" xmlns:t="http://prism.evolveum.com/xml/ns/public/types-3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+oid="44444444-2222-0000-0000-000000000000">
+    <name>CSV User Role</name>
+    <description>Container for CSV Users. Any user assigned to this role will have its account created on CSV.</description>
+    <lifecycleState>active</lifecycleState>
+    <indestructible>true</indestructible>
+    <displayName>CSV User Role</displayName>
+    <inducement>
+        <construction>
+            <resourceRef oid="44444444-0000-0000-0000-00000000000" relation="org:default" type="c:ResourceType">
+            </resourceRef>
+            <kind>account</kind>
+            <intent>default</intent>
+        </construction>
+    </inducement>
+    <requestable>true</requestable>
+</role>

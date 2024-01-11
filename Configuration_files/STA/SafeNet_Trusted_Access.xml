@@ -19,7 +19,7 @@
                 </q:equal>
                 <q:equal>
                     <q:path>connectorVersion</q:path>
-                    <q:value>1.0.0</q:value>
+                    <q:value>1.0.1</q:value>
                 </q:equal>
             </q:and>
         </filter>
@@ -33,13 +33,19 @@
             <icfcsta:APIBaseURL>https://api.{your_STA_zone}.safenetid.com/api/v1/tenants/{your_STA_tenant-code}/</icfcsta:APIBaseURL>
         </icfc:configurationProperties>
     </connectorConfiguration>
-    <schemaHandling>
+     <schemaHandling>
         <objectType>
             <kind>account</kind>
             <intent>default</intent>
             <displayName>Account</displayName>
             <default>true</default>
             <objectClass>ri:AccountObjectClass</objectClass>
+            <delineation>
+                <objectClass>ri:AccountObjectClass</objectClass>
+            </delineation>
+            <focus>
+                <type>c:UserType</type>
+            </focus>
             <attribute>
                 <ref>ri:email</ref>
                 <tolerant>true</tolerant>
@@ -229,7 +235,49 @@
                 <administrativeStatus>
                     <outbound/>
                 </administrativeStatus>
-            </activation>    
+            </activation>
+            <correlation>
+                <correlators>
+                    <items>
+                        <enabled>true</enabled>
+                        <item>
+                            <ref>c:name</ref>
+                        </item>
+                    </items>
+                </correlators>
+            </correlation>
+            <synchronization>
+                <reaction>
+                    <situation>linked</situation>
+                </reaction>
+                <reaction>
+                    <situation>deleted</situation>
+                    <actions>
+                        <deleteFocus>
+                            <synchronize>true</synchronize>
+                            <reconcile>false</reconcile>
+                        </deleteFocus>
+                    </actions>
+                </reaction>
+                <reaction>
+                    <situation>unlinked</situation>
+                    <actions>
+                        <link>
+                            <synchronize>true</synchronize>
+                            <reconcile>false</reconcile>
+                        </link>
+                    </actions>
+                </reaction>
+                <reaction>
+                    <situation>unmatched</situation>
+                    <actions>
+                        <addFocus>
+                            <synchronize>true</synchronize>
+                            <reconcile>false</reconcile>
+                        </addFocus>
+                    </actions>
+                </reaction>
+            </synchronization>
         </objectType>
         <objectType>
             <kind>entitlement</kind>
@@ -237,6 +285,12 @@
             <displayName>Group</displayName>
             <default>true</default>
             <objectClass>ri:GroupObjectClass</objectClass>
+            <delineation>
+                <objectClass>ri:GroupObjectClass</objectClass>
+            </delineation>
+            <focus>
+                <type>c:RoleType</type>
+            </focus>
             <attribute>
                 <ref>ri:description</ref>
                 <tolerant>true</tolerant>
@@ -293,100 +347,50 @@
                     </expression>
                 </outbound>
             </attribute>
+            <correlation>
+                <correlators>
+                    <items>
+                        <enabled>true</enabled>
+                        <item>
+                            <ref>c:name</ref>
+                        </item>
+                    </items>
+                </correlators>
+            </correlation>
+            <synchronization>
+                <reaction>
+                    <situation>linked</situation>
+                </reaction>
+                <reaction>
+                    <situation>deleted</situation>
+                    <actions>
+                        <deleteFocus>
+                            <synchronize>true</synchronize>
+                            <reconcile>false</reconcile>
+                        </deleteFocus>
+                    </actions>
+                </reaction>
+                <reaction>
+                    <situation>unlinked</situation>
+                    <actions>
+                        <link>
+                            <synchronize>true</synchronize>
+                            <reconcile>false</reconcile>
+                        </link>
+                    </actions>
+                </reaction>
+                <reaction>
+                    <situation>unmatched</situation>
+                    <actions>
+                        <addFocus>
+                            <synchronize>true</synchronize>
+                            <reconcile>false</reconcile>
+                        </addFocus>
+                    </actions>
+                </reaction>
+            </synchronization>
         </objectType>
     </schemaHandling>
-    <synchronization>
-        <objectSynchronization>
-            <name>Account</name>
-            <objectClass>AccountObjectClass</objectClass>
-            <kind>account</kind>
-            <intent>default</intent>
-            <focusType>c:UserType</focusType>
-            <enabled>true</enabled>
-            <correlation>
-                <q:equal>
-                    <q:path>c:name</q:path>
-                    <expression>
-                        <path>$shadow/attributes/name</path>
-                    </expression>
-                </q:equal>
-                <q:description>User correlation</q:description>
-            </correlation>
-            <reconcile>false</reconcile>
-            <reaction>
-                <situation>linked</situation>
-                <synchronize>true</synchronize>
-            </reaction>
-            <reaction>
-                <situation>deleted</situation>
-                <synchronize>true</synchronize>
-                <action>
-                    <handlerUri>http://midpoint.evolveum.com/xml/ns/public/model/action-3#deleteFocus</handlerUri>
-                </action>
-            </reaction>
-            <reaction>
-                <situation>unlinked</situation>
-                <synchronize>true</synchronize>
-                <action>
-                    <handlerUri>http://midpoint.evolveum.com/xml/ns/public/model/action-3#link</handlerUri>
-                </action>
-            </reaction>
-            <reaction>
-                <situation>unmatched</situation>
-                <synchronize>true</synchronize>
-                <action>
-                    <handlerUri>http://midpoint.evolveum.com/xml/ns/public/model/action-3#addFocus</handlerUri>
-                </action>
-            </reaction>
-        </objectSynchronization>
-        <objectSynchronization>
-            <name>Group</name>
-            <objectClass>ri:GroupObjectClass</objectClass>
-            <kind>entitlement</kind>
-            <intent>group</intent>
-            <focusType>c:RoleType</focusType>
-            <enabled>true</enabled>
-            <correlation>
-                <q:equal xmlns="">
-                    <q:path>c:name</q:path>
-                    <expression>
-                        <path>$shadow/attributes/name</path>
-                    </expression>
-                </q:equal>
-                <q:description>Group correlation</q:description>
-            </correlation>
-            <reconcile>false</reconcile>
-            <reaction>
-                <situation>deleted</situation>
-                <synchronize>true</synchronize>
-                <action>
-                    <handlerUri>http://midpoint.evolveum.com/xml/ns/public/model/action-3#deleteFocus</handlerUri>
-                </action>
-            </reaction>
-            <reaction>
-                <situation>unlinked</situation>
-                <synchronize>true</synchronize>
-                <action>
-                    <handlerUri>http://midpoint.evolveum.com/xml/ns/public/model/action-3#link</handlerUri>
-                </action>
-            </reaction>
-            <reaction>
-                <situation>unmatched</situation>
-                <synchronize>true</synchronize>
-                <action>
-                    <handlerUri>http://midpoint.evolveum.com/xml/ns/public/model/action-3#addFocus</handlerUri>
-                </action>
-            </reaction>
-            <reaction>
-                <situation>linked</situation>
-                <synchronize>true</synchronize>
-                <reconcile>false</reconcile>
-                <action>
-                    <handlerUri>http://midpoint.evolveum.com/xml/ns/public/model/action-3#sync</handlerUri>
-                </action>
-            </reaction>
-        </objectSynchronization>
-    </synchronization>
     <capabilities>
         <native xmlns:cap="http://midpoint.evolveum.com/xml/ns/public/resource/capabilities-3">
             <cap:schema/>

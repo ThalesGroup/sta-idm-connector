@@ -1,236 +1,64 @@
 <resource xmlns="http://midpoint.evolveum.com/xml/ns/public/common/common-3"
     xmlns:c="http://midpoint.evolveum.com/xml/ns/public/common/common-3"
-    xmlns:icfc="http://midpoint.evolveum.com/xml/ns/public/connector/icf-1/connector-schema-3"
     xmlns:icfs="http://midpoint.evolveum.com/xml/ns/public/connector/icf-1/resource-schema-3"
-    xmlns:icfcad="http://midpoint.evolveum.com/xml/ns/public/connector/icf-1/bundle/com.evolveum.polygon.connector-ldap/com.evolveum.polygon.connector.ldap.ad.AdLdapConnector"
+    xmlns:icfc="http://midpoint.evolveum.com/xml/ns/public/connector/icf-1/connector-schema-3"
+    xmlns:icfcsta="http://midpoint.evolveum.com/xml/ns/public/connector/icf-1/bundle/com.evolveum.polygon.STA-IdM-connector/com.connid.sta.connector.STARestConnector"
     xmlns:org="http://midpoint.evolveum.com/xml/ns/public/common/org-3"
     xmlns:q="http://prism.evolveum.com/xml/ns/public/query-3"
     xmlns:ri="http://midpoint.evolveum.com/xml/ns/public/resource/instance-3"
     xmlns:t="http://prism.evolveum.com/xml/ns/public/types-3"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    oid="22222222-0000-0000-0000-00000000000">
-    <name>Active Directory</name>
-
+    oid="33333333-0000-0000-0000-000000000000">
+    <name>SafeNet Trusted Access</name>
     <connectorRef type="c:ConnectorType">
         <filter>
             <q:and>
                 <q:equal>
-                <q:path>c:connectorType</q:path>
-                <q:value>com.evolveum.polygon.connector.ldap.ad.AdLdapConnector</q:value>
-            </q:equal>
-            <q:equal>
-                <q:path>connectorVersion</q:path>
-                <q:value>3.7</q:value>
-            </q:equal>
-        </q:and>
+                    <q:path>c:connectorType</q:path>
+                    <q:value>com.connid.sta.connector.STARestConnector</q:value>
+                </q:equal>
+                <q:equal>
+                    <q:path>connectorVersion</q:path>
+                    <q:value>1.0.1</q:value>
+                </q:equal>
+            </q:and>
         </filter>
     </connectorRef>
-
     <connectorConfiguration>
-        <icfc:resultsHandlerConfiguration>
-            <icfc:enableNormalizingResultsHandler>false</icfc:enableNormalizingResultsHandler>
-            <icfc:enableFilteredResultsHandler>false</icfc:enableFilteredResultsHandler>
-            <icfc:enableAttributesToGetSearchResultsHandler>false</icfc:enableAttributesToGetSearchResultsHandler>
-        </icfc:resultsHandlerConfiguration>
         <icfc:configurationProperties>
-            <icfcad:host>localhost</icfcad:host>
-            <icfcad:port>636</icfcad:port>
-            <icfcad:connectionSecurity>ssl</icfcad:connectionSecurity>
-            <icfcad:sslProtocol>TLSv1.2</icfcad:sslProtocol>
-            <icfcad:bindDn>CN=IdM-Admin,CN=Users,DC=example,DC=com</icfcad:bindDn>
-            <icfcad:bindPassword>
-                <clearValue>secret</clearValue>
-            </icfcad:bindPassword>
-            <icfcad:baseContext>DC=example,DC=com</icfcad:baseContext>
-            <icfcad:pagingBlockSize>20</icfcad:pagingBlockSize>
+            <icfcsta:pageSize>30</icfcsta:pageSize>
+            <icfcsta:apiKey>
+                <clearValue>apikey</clearValue>
+            </icfcsta:apiKey>
+            <icfcsta:APIBaseURL>https://api.{your_STA_zone}.safenetid.com/api/v1/tenants/{your_STA_tenant-code}/</icfcsta:APIBaseURL>
         </icfc:configurationProperties>
     </connectorConfiguration>
-    <schema>
-        <generationConstraints>
-            <generateObjectClass>ri:user</generateObjectClass>
-            <generateObjectClass>ri:group</generateObjectClass>
-        </generationConstraints>
-    </schema>
-    <schemaHandling>
+     <schemaHandling>
         <objectType>
             <kind>account</kind>
             <intent>default</intent>
             <displayName>Account</displayName>
             <default>true</default>
-            <objectClass>ri:user</objectClass>
+            <objectClass>ri:AccountObjectClass</objectClass>
             <delineation>
-                <objectClass>ri:user</objectClass>
+                <objectClass>ri:AccountObjectClass</objectClass>
             </delineation>
             <focus>
                 <type>c:UserType</type>
             </focus>
             <attribute>
-                <ref>ri:dn</ref>
-                <displayName>Distinguished Name</displayName>
-                <matchingRule>stringIgnoreCase</matchingRule>
+                <ref>ri:email</ref>
                 <tolerant>true</tolerant>
                 <exclusiveStrong>false</exclusiveStrong>
-                <inbound>
+                <outbound>
                     <authoritative>true</authoritative>
                     <exclusive>false</exclusive>
                     <strength>normal</strength>
-                    <target>
-                        <path>fullName</path>
-                    </target>
-                </inbound>
-            </attribute>
-            <attribute>
-                <ref>ri:sAMAccountName</ref>
-                <displayName>Login name</displayName>
-                <tolerant>true</tolerant>
-                <exclusiveStrong>false</exclusiveStrong>
-                <inbound>
-                    <authoritative>true</authoritative>
-                    <exclusive>false</exclusive>
-                    <strength>normal</strength>
-                    <target>
-                        <path>name</path>
-                    </target>
-                </inbound>
-            </attribute>
-            <attribute>
-                <ref>ri:sn</ref>
-                <limitations>
-                    <minOccurs>0</minOccurs>
-                </limitations>
-                <tolerant>true</tolerant>
-                <exclusiveStrong>false</exclusiveStrong>
-                <inbound>
-                    <authoritative>true</authoritative>
-                    <exclusive>false</exclusive>
-                    <strength>normal</strength>
-                    <target>
-                        <path>familyName</path>
-                    </target>
-                </inbound>
-            </attribute>
-            <attribute>
-                <ref>ri:givenName</ref>
-                <tolerant>true</tolerant>
-                <exclusiveStrong>false</exclusiveStrong>
-                <inbound>
-                    <authoritative>true</authoritative>
-                    <exclusive>false</exclusive>
-                    <strength>normal</strength>
-                    <target>
-                        <path>givenName</path>
-                    </target>
-                </inbound>
-            </attribute>
-            <attribute>
-                <ref>ri:userPrincipalName</ref>
-                <tolerant>true</tolerant>
-                <exclusiveStrong>false</exclusiveStrong>
-                <inbound>
-                    <authoritative>true</authoritative>
-                    <exclusive>false</exclusive>
-                    <strength>normal</strength>
-                    <target>
-                        <path>extension/userPrincipalName</path>
-                    </target>
-                </inbound>
-            </attribute>
-            <attribute>
-                <ref>ri:telephoneNumber</ref>
-                <tolerant>true</tolerant>
-                <exclusiveStrong>false</exclusiveStrong>
-                <inbound>
-                    <authoritative>true</authoritative>
-                    <exclusive>false</exclusive>
-                    <strength>normal</strength>
-                    <target>
-                        <path>telephoneNumber</path>
-                    </target>
-                </inbound>
-            </attribute>
-            <attribute>
-                <ref>ri:streetAddress</ref>
-                <tolerant>true</tolerant>
-                <exclusiveStrong>false</exclusiveStrong>
-                <inbound>
-                    <authoritative>true</authoritative>
-                    <exclusive>false</exclusive>
-                    <strength>normal</strength>
-                    <target>
-                        <path>locality</path>
-                    </target>
-                </inbound>
-            </attribute>
-            <attribute>
-                <ref>ri:description</ref>
-                <tolerant>true</tolerant>
-                <exclusiveStrong>false</exclusiveStrong>
-                <inbound>
-                    <authoritative>true</authoritative>
-                    <exclusive>false</exclusive>
-                    <strength>normal</strength>
-                    <target>
-                        <path>description</path>
-                    </target>
-                </inbound>
-            </attribute>
-            <attribute>
-                <ref>ri:postalCode</ref>
-                <tolerant>true</tolerant>
-                <exclusiveStrong>false</exclusiveStrong>
-                <inbound>
-                    <authoritative>true</authoritative>
-                    <exclusive>false</exclusive>
-                    <strength>normal</strength>
-                    <target>
-                        <path>extension/postalCode</path>
-                    </target>
-                </inbound>
-            </attribute>
-            <attribute>
-                <ref>ri:l</ref>
-                <tolerant>true</tolerant>
-                <exclusiveStrong>false</exclusiveStrong>
-                <inbound>
-                    <authoritative>true</authoritative>
-                    <exclusive>false</exclusive>
-                    <strength>normal</strength>
-                    <target>
-                        <path>extension/city</path>
-                    </target>
-                </inbound>
-            </attribute>
-            <attribute>
-                <ref>ri:co</ref>
-                <tolerant>true</tolerant>
-                <exclusiveStrong>false</exclusiveStrong>
-                <inbound>
-                    <authoritative>true</authoritative>
-                    <exclusive>false</exclusive>
-                    <strength>normal</strength>
-                    <target>
-                        <path>extension/country</path>
-                    </target>
-                </inbound>
-            </attribute>
-            <attribute>
-                <ref>ri:displayName</ref>
-                <tolerant>true</tolerant>
-                <exclusiveStrong>false</exclusiveStrong>
-                <inbound>
-                    <authoritative>true</authoritative>
-                    <exclusive>false</exclusive>
-                    <strength>normal</strength>
-                    <target>
-                        <path>additionalName</path>
-                    </target>
-                </inbound>
-            </attribute>
-            <attribute>
-                <ref>ri:mail</ref>
-                <tolerant>true</tolerant>
-                <exclusiveStrong>false</exclusiveStrong>
-                <inbound>
+                    <source>
+                        <path>emailAddress</path>
+                    </source>
+                </outbound>
+				<inbound>
                     <authoritative>true</authoritative>
                     <exclusive>false</exclusive>
                     <strength>normal</strength>
@@ -240,10 +68,165 @@
                 </inbound>
             </attribute>
             <attribute>
-                <ref>ri:st</ref>
+                <ref>ri:firstName</ref>
                 <tolerant>true</tolerant>
                 <exclusiveStrong>false</exclusiveStrong>
-                <inbound>
+                <outbound>
+                    <authoritative>true</authoritative>
+                    <exclusive>false</exclusive>
+                    <strength>normal</strength>
+                    <source>
+                        <path>givenName</path>
+                    </source>
+                </outbound>
+				<inbound>
+                    <authoritative>true</authoritative>
+                    <exclusive>false</exclusive>
+                    <strength>normal</strength>
+                    <target>
+                        <path>givenName</path>
+                    </target>
+                </inbound>
+            </attribute>
+            <attribute>
+                <ref>ri:lastName</ref>
+                <tolerant>true</tolerant>
+                <exclusiveStrong>false</exclusiveStrong>
+                <outbound>
+                    <authoritative>true</authoritative>
+                    <exclusive>false</exclusive>
+                    <strength>normal</strength>
+                    <source>
+                        <path>familyName</path>
+                    </source>
+                </outbound>
+				<inbound>
+                    <authoritative>true</authoritative>
+                    <exclusive>false</exclusive>
+                    <strength>normal</strength>
+                    <target>
+                        <path>familyName</path>
+                    </target>
+                </inbound>
+            </attribute>
+            <attribute>
+                <ref>ri:userName</ref>
+                <tolerant>true</tolerant>
+                <exclusiveStrong>false</exclusiveStrong>
+                <outbound>
+                    <authoritative>true</authoritative>
+                    <exclusive>false</exclusive>
+                    <strength>normal</strength>
+                    <source>
+                        <path>name</path>
+                    </source>
+                </outbound>
+				<inbound>
+                    <authoritative>true</authoritative>
+                    <exclusive>false</exclusive>
+                    <strength>normal</strength>
+                    <target>
+                        <path>name</path>
+                    </target>
+                </inbound>
+            </attribute>
+            <attribute>
+                <ref>ri:address</ref>
+                <tolerant>true</tolerant>
+                <exclusiveStrong>false</exclusiveStrong>
+                <outbound>
+                    <authoritative>true</authoritative>
+                    <exclusive>false</exclusive>
+                    <strength>normal</strength>
+                    <source>
+                        <path>locality</path>
+                    </source>
+                </outbound>
+				<inbound>
+                    <authoritative>true</authoritative>
+                    <exclusive>false</exclusive>
+                    <strength>normal</strength>
+                    <target>
+                        <path>locality</path>
+                    </target>
+                </inbound>
+            </attribute>
+            <attribute>
+                <ref>ri:city</ref>
+                <tolerant>true</tolerant>
+                <exclusiveStrong>false</exclusiveStrong>
+                <outbound>
+                    <authoritative>true</authoritative>
+                    <exclusive>false</exclusive>
+                    <strength>normal</strength>
+                    <source>
+                        <path>extension/city</path>
+                    </source>
+                </outbound>
+				<inbound>
+                    <authoritative>true</authoritative>
+                    <exclusive>false</exclusive>
+                    <strength>normal</strength>
+                    <target>
+                        <path>extension/city</path>
+                    </target>
+                </inbound>
+            </attribute>
+            <attribute>
+                <ref>ri:mobileNumber</ref>
+                <tolerant>true</tolerant>
+                <exclusiveStrong>false</exclusiveStrong>
+                <outbound>
+                    <authoritative>true</authoritative>
+                    <exclusive>false</exclusive>
+                    <strength>normal</strength>
+                    <source>
+                        <path>telephoneNumber</path>
+                    </source>
+                </outbound>
+				<inbound>
+                    <authoritative>true</authoritative>
+                    <exclusive>false</exclusive>
+                    <strength>normal</strength>
+                    <target>
+                        <path>telephoneNumber</path>
+                    </target>
+                </inbound>
+            </attribute>
+            <attribute>
+                <ref>ri:postalCode</ref>
+                <tolerant>true</tolerant>
+                <exclusiveStrong>false</exclusiveStrong>
+                <outbound>
+                    <authoritative>true</authoritative>
+                    <exclusive>false</exclusive>
+                    <strength>normal</strength>
+                    <source>
+                        <path>extension/postalCode</path>
+                    </source>
+                </outbound>
+				<inbound>
+                    <authoritative>true</authoritative>
+                    <exclusive>false</exclusive>
+                    <strength>normal</strength>
+                    <target>
+                        <path>extension/postalCode</path>
+                    </target>
+                </inbound>
+            </attribute>
+            <attribute>
+                <ref>ri:state</ref>
+                <tolerant>true</tolerant>
+                <exclusiveStrong>false</exclusiveStrong>
+                <outbound>
+                    <authoritative>true</authoritative>
+                    <exclusive>false</exclusive>
+                    <strength>normal</strength>
+                    <source>
+                        <path>extension/state</path>
+                    </source>
+                </outbound>
+				<inbound>
                     <authoritative>true</authoritative>
                     <exclusive>false</exclusive>
                     <strength>normal</strength>
@@ -252,45 +235,86 @@
                     </target>
                 </inbound>
             </attribute>
-            <association>
-                <ref>ri:group</ref>
-                <displayName>AD Group Membership</displayName>
+            <attribute>
+                <ref>ri:country</ref>
                 <tolerant>true</tolerant>
                 <exclusiveStrong>false</exclusiveStrong>
-                <inbound>
-                    <authoritative>false</authoritative>
+                <outbound>
+                    <authoritative>true</authoritative>
                     <exclusive>false</exclusive>
-                    <strength>strong</strength>
-                    <expression>
-                        <assignmentTargetSearch>
-                            <targetType>c:RoleType</targetType>
-                            <filter>
-                                <q:equal>
-                                    <q:path>name</q:path>
-                                    <expression>
-                                        <script>
-                                            <code>
-                                                return basic.getAttributeValue(entitlement, 'cn')
-                                            </code>
-                                        </script>
-                                    </expression>
-                                </q:equal>
-                            </filter>
-                        </assignmentTargetSearch>
-                    </expression>
+                    <strength>normal</strength>
+                    <source>
+                        <path>extension/country</path>
+                    </source>
+                </outbound>
+				<inbound>
+                    <authoritative>true</authoritative>
+                    <exclusive>false</exclusive>
+                    <strength>normal</strength>
                     <target>
-                        <path>assignment</path>
+                        <path>extension/country</path>
                     </target>
                 </inbound>
+            </attribute>
+            <attribute>
+                <ref>icfs:name</ref>
+                <tolerant>true</tolerant>
+                <exclusiveStrong>false</exclusiveStrong>
+                <outbound>
+                    <authoritative>true</authoritative>
+                    <exclusive>false</exclusive>
+                    <strength>normal</strength>
+                    <source>
+                        <path>name</path>
+                    </source>
+                </outbound>
+				<inbound>
+                    <authoritative>true</authoritative>
+                    <exclusive>false</exclusive>
+                    <strength>normal</strength>
+                    <target>
+                        <path>name</path>
+                    </target>
+                </inbound>
+            </attribute>
+            <attribute>
+                <ref>ri:userPrincipalName</ref>
+                <tolerant>true</tolerant>
+                <exclusiveStrong>false</exclusiveStrong>
+                <outbound>
+                    <authoritative>true</authoritative>
+                    <exclusive>false</exclusive>
+                    <strength>normal</strength>
+                    <source>
+                        <path>extension/userPrincipalName</path>
+                    </source>
+                </outbound>
+				<inbound>
+                    <authoritative>true</authoritative>
+                    <exclusive>false</exclusive>
+                    <strength>normal</strength>
+                    <target>
+                        <path>extension/userPrincipalName</path>
+                    </target>
+                </inbound>
+            </attribute>
+            <association>
+                <ref>ri:STA Group</ref>
+                <displayName>STA Group Membership</displayName>
+                <tolerant>false</tolerant>
+                <exclusiveStrong>false</exclusiveStrong>
                 <kind>entitlement</kind>
                 <intent>group</intent>
                 <direction>objectToSubject</direction>
-                <associationAttribute>ri:member</associationAttribute>
-                <valueAttribute>ri:dn</valueAttribute>
-                <shortcutAssociationAttribute>ri:memberOf</shortcutAssociationAttribute>
-                <shortcutValueAttribute>ri:dn</shortcutValueAttribute>
+                <associationAttribute>ri:members</associationAttribute>
+                <valueAttribute>ri:id</valueAttribute>
                 <explicitReferentialIntegrity>false</explicitReferentialIntegrity>
             </association>
+            <activation>
+                <administrativeStatus>
+                    <outbound/>
+                </administrativeStatus>
+            </activation>
             <correlation>
                 <correlators>
                     <items>
@@ -304,13 +328,6 @@
             <synchronization>
                 <reaction>
                     <situation>linked</situation>
-                    <actions>
-                        <synchronize>
-                            <objectTemplateRef oid="22222222-1111-0000-0000-000000000000" relation="org:default" type="c:ObjectTemplateType">
-                                <!-- User Template for AD -->
-                            </objectTemplateRef>
-                        </synchronize>
-                    </actions>
                 </reaction>
                 <reaction>
                     <situation>deleted</situation>
@@ -318,9 +335,6 @@
                         <deleteFocus>
                             <synchronize>true</synchronize>
                             <reconcile>false</reconcile>
-                            <objectTemplateRef oid="22222222-1111-0000-0000-000000000000" relation="org:default" type="c:ObjectTemplateType">
-                                <!-- User Template for AD -->
-                            </objectTemplateRef>
                         </deleteFocus>
                     </actions>
                 </reaction>
@@ -330,9 +344,6 @@
                         <link>
                             <synchronize>true</synchronize>
                             <reconcile>false</reconcile>
-                            <objectTemplateRef oid="22222222-1111-0000-0000-000000000000" relation="org:default" type="c:ObjectTemplateType">
-                                <!-- User Template for AD -->
-                            </objectTemplateRef>
                         </link>
                     </actions>
                 </reaction>
@@ -342,9 +353,6 @@
                         <addFocus>
                             <synchronize>true</synchronize>
                             <reconcile>false</reconcile>
-                            <objectTemplateRef oid="22222222-1111-0000-0000-000000000000" relation="org:default" type="c:ObjectTemplateType">
-                                <!-- User Template for AD -->
-                            </objectTemplateRef>
                         </addFocus>
                     </actions>
                 </reaction>
@@ -355,31 +363,73 @@
             <intent>group</intent>
             <displayName>Group</displayName>
             <default>true</default>
-            <objectClass>ri:group</objectClass>
+            <objectClass>ri:GroupObjectClass</objectClass>
             <delineation>
-                <objectClass>ri:group</objectClass>
+                <objectClass>ri:GroupObjectClass</objectClass>
             </delineation>
             <focus>
                 <type>c:RoleType</type>
             </focus>
             <attribute>
-                <ref>ri:cn</ref>
-                <matchingRule>stringIgnoreCase</matchingRule>
+                <ref>ri:description</ref>
                 <tolerant>true</tolerant>
                 <exclusiveStrong>false</exclusiveStrong>
-                <inbound>
+                <outbound>
+                    <authoritative>true</authoritative>
+                    <exclusive>false</exclusive>
+                    <strength>normal</strength>
+                    <source>
+                        <path>description</path>
+                    </source>
+                </outbound>
+				<inbound>
+                    <authoritative>true</authoritative>
+                    <exclusive>false</exclusive>
+                    <strength>normal</strength>
+                    <target>
+                        <path>description</path>
+                    </target>
+                </inbound>
+            </attribute>
+            <attribute>
+                <ref>ri:name</ref>
+                <tolerant>true</tolerant>
+                <exclusiveStrong>false</exclusiveStrong>
+                <outbound>
+                    <authoritative>true</authoritative>
+                    <exclusive>false</exclusive>
+                    <strength>normal</strength>
+                    <source>
+                        <path>name</path>
+                    </source>
+                </outbound>
+				<inbound>
+                    <authoritative>true</authoritative>
+                    <exclusive>false</exclusive>
+                    <strength>normal</strength>
                     <target>
                         <path>name</path>
                     </target>
                 </inbound>
             </attribute>
             <attribute>
-                <ref>ri:description</ref>
+                <ref>icfs:name</ref>
                 <tolerant>true</tolerant>
                 <exclusiveStrong>false</exclusiveStrong>
-                <inbound>
+                <outbound>
+                    <authoritative>true</authoritative>
+                    <exclusive>false</exclusive>
+                    <strength>normal</strength>
+                    <source>
+                        <path>name</path>
+                    </source>
+                </outbound>
+				<inbound>
+                    <authoritative>true</authoritative>
+                    <exclusive>false</exclusive>
+                    <strength>normal</strength>
                     <target>
-                        <path>description</path>
+                        <path>name</path>
                     </target>
                 </inbound>
             </attribute>
@@ -396,13 +446,6 @@
             <synchronization>
                 <reaction>
                     <situation>linked</situation>
-                    <actions>
-                        <synchronize>
-                            <objectTemplateRef oid="22222222-2222-0000-0000-000000000000" relation="org:default" type="c:ObjectTemplateType">
-                                <!-- Role Template for AD -->
-                            </objectTemplateRef>
-                        </synchronize>
-                    </actions>
                 </reaction>
                 <reaction>
                     <situation>deleted</situation>
@@ -410,9 +453,6 @@
                         <deleteFocus>
                             <synchronize>true</synchronize>
                             <reconcile>false</reconcile>
-                            <objectTemplateRef oid="22222222-2222-0000-0000-000000000000" relation="org:default" type="c:ObjectTemplateType">
-                                <!-- Role Template for AD -->
-                            </objectTemplateRef>
                         </deleteFocus>
                     </actions>
                 </reaction>
@@ -422,9 +462,6 @@
                         <link>
                             <synchronize>true</synchronize>
                             <reconcile>false</reconcile>
-                            <objectTemplateRef oid="22222222-2222-0000-0000-000000000000" relation="org:default" type="c:ObjectTemplateType">
-                                <!-- Role Template for AD -->
-                            </objectTemplateRef>
                         </link>
                     </actions>
                 </reaction>
@@ -434,9 +471,6 @@
                         <addFocus>
                             <synchronize>true</synchronize>
                             <reconcile>false</reconcile>
-                            <objectTemplateRef oid="22222222-2222-0000-0000-000000000000" relation="org:default" type="c:ObjectTemplateType">
-                                <!-- Role Template for AD -->
-                            </objectTemplateRef>
                         </addFocus>
                     </actions>
                 </reaction>
@@ -446,81 +480,75 @@
     <capabilities>
         <native xmlns:cap="http://midpoint.evolveum.com/xml/ns/public/resource/capabilities-3">
             <cap:schema/>
-            <cap:activation>
-                <cap:status/>
-            </cap:activation>
-            <cap:credentials>
-                <cap:password>
-                    <cap:returnedByDefault>false</cap:returnedByDefault>
-                </cap:password>
-            </cap:credentials>
             <cap:liveSync/>
+            <cap:testConnection/>
             <cap:create/>
-            <cap:read>
-                <cap:returnDefaultAttributesOption>true</cap:returnDefaultAttributesOption>
-            </cap:read>
             <cap:update>
                 <cap:delta>true</cap:delta>
                 <cap:addRemoveAttributeValues>true</cap:addRemoveAttributeValues>
             </cap:update>
             <cap:delete/>
-            <cap:testConnection/>
             <cap:script>
                 <cap:host>
                     <cap:type>connector</cap:type>
                 </cap:host>
             </cap:script>
-            <cap:pagedSearch/>
-            <cap:auxiliaryObjectClasses/>
+            <cap:read>
+                <cap:returnDefaultAttributesOption>false</cap:returnDefaultAttributesOption>
+            </cap:read>
         </native>
         <configured xmlns:cap="http://midpoint.evolveum.com/xml/ns/public/resource/capabilities-3">
-             <cap:activation>
-                <cap:enabled>true</cap:enabled>
-                <cap:status>
-                    <cap:enabled>false</cap:enabled>
-                    <cap:returnedByDefault>false</cap:returnedByDefault>
-                    <cap:attribute>userAccountControl</cap:attribute>
-                    <cap:enableValue>Enabled</cap:enableValue>
-                    <cap:disableValue>Disabled</cap:disableValue>
-                </cap:status>
-            </cap:activation>
-			<cap:credentials>
-                <cap:enabled>true</cap:enabled>
-                <cap:password>
-                    <cap:enabled>true</cap:enabled>
-                    <cap:returnedByDefault>false</cap:returnedByDefault>
-                </cap:password>
-            </cap:credentials>
             <cap:liveSync>
                 <cap:enabled>true</cap:enabled>
             </cap:liveSync>
+            <cap:testConnection>
+                <cap:enabled>true</cap:enabled>
+            </cap:testConnection>
             <cap:create>
                 <cap:enabled>true</cap:enabled>
             </cap:create>
-            <cap:read>
-                <cap:enabled>true</cap:enabled>
-                <cap:returnDefaultAttributesOption>true</cap:returnDefaultAttributesOption>
-            </cap:read>
             <cap:update>
                 <cap:enabled>true</cap:enabled>
                 <cap:delta>true</cap:delta>
                 <cap:addRemoveAttributeValues>true</cap:addRemoveAttributeValues>
             </cap:update>
             <cap:delete>
-                <cap:enabled>false</cap:enabled>
-            </cap:delete>
-            <cap:testConnection>
                 <cap:enabled>true</cap:enabled>
-            </cap:testConnection>
+            </cap:delete>
             <cap:script>
                 <cap:enabled>true</cap:enabled>
                 <cap:host>
                     <cap:type>connector</cap:type>
                 </cap:host>
             </cap:script>
-            <cap:auxiliaryObjectClasses>
+            <cap:read>
                 <cap:enabled>true</cap:enabled>
-            </cap:auxiliaryObjectClasses>
+                <cap:returnDefaultAttributesOption>false</cap:returnDefaultAttributesOption>
+            </cap:read>
+            <cap:activation>
+                <cap:enabled>true</cap:enabled>
+                <cap:status>
+                    <cap:enabled>true</cap:enabled>
+                    <cap:returnedByDefault>true</cap:returnedByDefault>
+                    <cap:attribute>ri:isActive</cap:attribute>
+                    <cap:enableValue>true</cap:enableValue>
+                    <cap:disableValue>false</cap:disableValue>
+                    <cap:ignoreAttribute>false</cap:ignoreAttribute>
+                </cap:status>
+                <cap:validFrom>
+                    <cap:enabled>false</cap:enabled>
+                    <cap:returnedByDefault>false</cap:returnedByDefault>
+                </cap:validFrom>
+                <cap:validTo>
+                    <cap:enabled>false</cap:enabled>
+                    <cap:returnedByDefault>false</cap:returnedByDefault>
+                </cap:validTo>
+                <cap:lockoutStatus>
+                    <cap:enabled>false</cap:enabled>
+                    <cap:returnedByDefault>false</cap:returnedByDefault>
+                    <cap:ignoreAttribute>true</cap:ignoreAttribute>
+                </cap:lockoutStatus>
+            </cap:activation>
         </configured>
     </capabilities>
 </resource>

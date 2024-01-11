@@ -1,27 +1,31 @@
-<objectTemplate oid="11111111-1111-0000-0000-000000000000"
+<objectTemplate oid="11111111-2222-0000-0000-000000000000"
     xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
     xmlns='http://midpoint.evolveum.com/xml/ns/public/common/common-3'
     xmlns:c='http://midpoint.evolveum.com/xml/ns/public/common/common-3'
     xmlns:t='http://prism.evolveum.com/xml/ns/public/types-3'
     xmlns:q="http://prism.evolveum.com/xml/ns/public/query-3"
     xmlns:ext="http://midpoint.evolveum.com/xml/ns/story/orgsync/ext">
-    <name>User Template for AzureAD</name>
+
+    <name>Role Template for Microsoft Entra Id</name>
+
     <mapping>
-        <name>Role assignment</name>
-        <strength>normal</strength>
+        <name>Metarole for STA assignment</name>
+        <authoritative>true</authoritative>
+        <strength>strong</strength>
         <expression>
             <assignmentTargetSearch>
                 <targetType>c:RoleType</targetType>
                 <filter>
                     <q:equal>
-                        <q:path>name</q:path>
-                        <q:value>STA User Role</q:value>
+                       <q:path>name</q:path>
+                       <q:value>MetaRole for STA</q:value>
                     </q:equal>
-                </filter>
+             </filter>
             </assignmentTargetSearch>
         </expression>
         <target>
             <path>assignment</path>
         </target>
     </mapping>
+
 </objectTemplate>

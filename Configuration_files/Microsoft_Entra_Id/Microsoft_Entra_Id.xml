@@ -9,7 +9,7 @@
     xmlns:t="http://prism.evolveum.com/xml/ns/public/types-3"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     oid="11111111-0000-0000-0000-00000000000">
-    <name>Azure Active Directory</name>
+    <name>Microsoft Entra ID</name>
     <connectorRef type="c:ConnectorType">
         <filter>
             <q:and>
@@ -45,6 +45,12 @@
             <displayName>Account</displayName>
             <default>true</default>
             <objectClass>ri:AccountObjectClass</objectClass>
+			<delineation>
+                <objectClass>ri:AccountObjectClass</objectClass>
+            </delineation>
+            <focus>
+                <type>c:UserType</type>
+            </focus>
             <attribute>
                 <ref>icfs:name</ref>
                 <tolerant>true</tolerant>
@@ -254,6 +260,64 @@
                 <shortcutValueAttribute>icfs:uid</shortcutValueAttribute>
                 <explicitReferentialIntegrity>false</explicitReferentialIntegrity>
             </association>
+			<correlation>
+                <correlators>
+                    <items>
+                        <enabled>true</enabled>
+                        <item>
+                            <ref>c:name</ref>
+                        </item>
+                    </items>
+                </correlators>
+            </correlation>
+            <synchronization>
+                <reaction>
+                    <situation>linked</situation>
+                    <actions>
+                        <synchronize>
+                            <objectTemplateRef oid="11111111-1111-0000-0000-000000000000" relation="org:default" type="c:ObjectTemplateType">
+                                <!-- User Template for AzureAD -->
+                            </objectTemplateRef>
+                        </synchronize>
+                    </actions>
+                </reaction>
+                <reaction>
+                    <situation>deleted</situation>
+                    <actions>
+                        <deleteFocus>
+                            <synchronize>true</synchronize>
+                            <reconcile>false</reconcile>
+                            <objectTemplateRef oid="11111111-1111-0000-0000-000000000000" relation="org:default" type="c:ObjectTemplateType">
+                                <!-- User Template for AzureAD -->
+                            </objectTemplateRef>
+                        </deleteFocus>
+                    </actions>
+                </reaction>
+                <reaction>
+                    <situation>unlinked</situation>
+                    <actions>
+                        <link>
+                            <synchronize>true</synchronize>
+                            <reconcile>false</reconcile>
+                            <objectTemplateRef oid="11111111-1111-0000-0000-000000000000" relation="org:default" type="c:ObjectTemplateType">
+                                <!-- User Template for AzureAD -->
+                            </objectTemplateRef>
+                        </link>
+                    </actions>
+                </reaction>
+                <reaction>
+                    <situation>unmatched</situation>
+                    <actions>
+                        <addFocus>
+                            <synchronize>true</synchronize>
+                            <reconcile>false</reconcile>
+                            <objectTemplateRef oid="11111111-1111-0000-0000-000000000000" relation="org:default" type="c:ObjectTemplateType">
+                                <!-- User Template for AzureAD -->
+                            </objectTemplateRef>
+                        </addFocus>
+                    </actions>
+                </reaction>
+            </synchronization>
         </objectType>
         <objectType>
             <kind>entitlement</kind>
@@ -261,6 +325,12 @@
             <displayName>Group</displayName>
             <default>true</default>
             <objectClass>ri:GroupObjectClass</objectClass>
+			 <delineation>
+                <objectClass>ri:GroupObjectClass</objectClass>
+            </delineation>
+            <focus>
+                <type>c:RoleType</type>
+            </focus>
             <attribute>
                 <ref>icfs:name</ref>
                 <tolerant>true</tolerant>
@@ -308,94 +378,66 @@
                     </target>
                 </inbound>
             </attribute>
+			<correlation>
+                <correlators>
+                    <items>
+                        <enabled>true</enabled>
+                        <item>
+                            <ref>c:name</ref>
+                        </item>
+                    </items>
+                </correlators>
+            </correlation>
+            <synchronization>
+                <reaction>
+                    <situation>linked</situation>
+                    <actions>
+                        <synchronize>
+                            <objectTemplateRef oid="11111111-2222-0000-0000-000000000000" relation="org:default" type="c:ObjectTemplateType">
+                                <!-- Role Template for AzureAD -->
+                            </objectTemplateRef>
+                        </synchronize>
+                    </actions>
+                </reaction>
+                <reaction>
+                    <situation>deleted</situation>
+                    <actions>
+                        <deleteFocus>
+                            <synchronize>true</synchronize>
+                            <reconcile>false</reconcile>
+                            <objectTemplateRef oid="11111111-2222-0000-0000-000000000000" relation="org:default" type="c:ObjectTemplateType">
+                                <!-- Role Template for AzureAD -->
+                            </objectTemplateRef>
+                        </deleteFocus>
+                    </actions>
+                </reaction>
+                <reaction>
+                    <situation>unlinked</situation>
+                    <actions>
+                        <link>
+                            <synchronize>true</synchronize>
+                            <reconcile>false</reconcile>
+                            <objectTemplateRef oid="11111111-2222-0000-0000-000000000000" relation="org:default" type="c:ObjectTemplateType">
+                                <!-- Role Template for AzureAD -->
+                            </objectTemplateRef>
+                        </link>
+                    </actions>
+                </reaction>
+                <reaction>
+                    <situation>unmatched</situation>
+                    <actions>
+                        <addFocus>
+                            <synchronize>true</synchronize>
+                            <reconcile>false</reconcile>
+                            <objectTemplateRef oid="11111111-2222-0000-0000-000000000000" relation="org:default" type="c:ObjectTemplateType">
+                                <!-- Role Template for AzureAD -->
+                            </objectTemplateRef>
+                        </addFocus>
+                    </actions>
+                </reaction>
+            </synchronization>
         </objectType>
     </schemaHandling>
-    <synchronization>
-        <objectSynchronization>
-            <name>Account</name>
-            <objectClass>ri:AccountObjectClass</objectClass>
-            <kind>account</kind>
-            <intent>default</intent>
-            <focusType>c:UserType</focusType>
-            <enabled>true</enabled>
-            <correlation>
-                <q:equal>
-                    <q:path>name</q:path>
-                    <expression>
-                        <path>$projection/attributes/icfs:name</path>
-                    </expression>
-                </q:equal>
-            </correlation>
-            <reconcile>false</reconcile>
-            <reaction>
-                <situation>linked</situation>
-                <synchronize>true</synchronize>
-            </reaction>
-            <reaction>
-                <situation>deleted</situation>
-                <synchronize>true</synchronize>
-                <action>
-                    <handlerUri>http://midpoint.evolveum.com/xml/ns/public/model/action-3#deleteFocus</handlerUri>
-                </action>
-            </reaction>
-            <reaction>
-                <situation>unlinked</situation>
-                <synchronize>true</synchronize>
-                <action>
-                    <handlerUri>http://midpoint.evolveum.com/xml/ns/public/model/action-3#link</handlerUri>
-                </action>
-            </reaction>
-            <reaction>
-                <situation>unmatched</situation>
-                <synchronize>true</synchronize>
-                <action>
-                    <handlerUri>http://midpoint.evolveum.com/xml/ns/public/model/action-3#addFocus</handlerUri>
-                </action>
-            </reaction>
-        </objectSynchronization>
-        <objectSynchronization>
-            <name>Group</name>
-            <objectClass>ri:GroupObjectClass</objectClass>
-            <kind>entitlement</kind>
-            <intent>group</intent>
-            <focusType>c:RoleType</focusType>
-            <enabled>true</enabled>
-            <correlation>
-                <q:equal>
-                    <q:path>name</q:path>
-                    <expression>
-                        <path>$projection/attributes/icfs:name</path>
-                    </expression>
-                </q:equal>
-            </correlation>
-            <reconcile>false</reconcile>
-            <reaction>
-                <situation>linked</situation>
-                <synchronize>true</synchronize>
-            </reaction>
-            <reaction>
-                <situation>deleted</situation>
-                <synchronize>true</synchronize>
-                <action>
-                    <handlerUri>http://midpoint.evolveum.com/xml/ns/public/model/action-3#deleteFocus</handlerUri>
-                </action>
-            </reaction>
-            <reaction>
-                <situation>unlinked</situation>
-                <synchronize>true</synchronize>
-                <action>
-                    <handlerUri>http://midpoint.evolveum.com/xml/ns/public/model/action-3#link</handlerUri>
-                </action>
-            </reaction>
-            <reaction>
-                <situation>unmatched</situation>
-                <synchronize>true</synchronize>
-                <action>
-                    <handlerUri>http://midpoint.evolveum.com/xml/ns/public/model/action-3#addFocus</handlerUri>
-                </action>
-            </reaction>
-        </objectSynchronization>
-    </synchronization>
     <capabilities>
         <native xmlns:cap="http://midpoint.evolveum.com/xml/ns/public/resource/capabilities-3">
             <cap:schema/>
@@ -425,7 +467,7 @@
             </cap:read>
         </native>
         <configured xmlns:cap="http://midpoint.evolveum.com/xml/ns/public/resource/capabilities-3">
-            <cap:liveSync>
+			<cap:liveSync>
                 <cap:enabled>true</cap:enabled>
             </cap:liveSync>
             <cap:testConnection>
@@ -448,30 +490,6 @@
                     <cap:type>connector</cap:type>
                 </cap:host>
             </cap:script>
-            <cap:activation>
-                <cap:enabled>true</cap:enabled>
-                <cap:status>
-                    <cap:enabled>true</cap:enabled>
-                    <cap:returnedByDefault>false</cap:returnedByDefault>
-                    <cap:attribute>ri:accountEnabled</cap:attribute>
-                    <cap:enableValue>true</cap:enableValue>
-                    <cap:disableValue>false</cap:disableValue>
-                    <cap:ignoreAttribute>false</cap:ignoreAttribute>
-                </cap:status>
-                <cap:validFrom>
-                    <cap:enabled>false</cap:enabled>
-                    <cap:returnedByDefault>false</cap:returnedByDefault>
-                </cap:validFrom>
-                <cap:validTo>
-                    <cap:enabled>false</cap:enabled>
-                    <cap:returnedByDefault>false</cap:returnedByDefault>
-                </cap:validTo>
-                <cap:lockoutStatus>
-                    <cap:enabled>false</cap:enabled>
-                    <cap:returnedByDefault>false</cap:returnedByDefault>
-                    <cap:ignoreAttribute>false</cap:ignoreAttribute>
-                </cap:lockoutStatus>
-            </cap:activation>
             <cap:credentials>
                 <cap:enabled>true</cap:enabled>
                 <cap:password>
@@ -483,6 +501,16 @@
                 <cap:enabled>true</cap:enabled>
                 <cap:returnDefaultAttributesOption>true</cap:returnDefaultAttributesOption>
             </cap:read>
+			<cap:activation>
+                <cap:enabled>true</cap:enabled>
+                <cap:status>
+                    <cap:enabled>false</cap:enabled>
+                    <cap:returnedByDefault>false</cap:returnedByDefault>
+                    <cap:attribute>accountEnabled</cap:attribute>
+                    <cap:enableValue>true</cap:enableValue>
+                    <cap:disableValue>false</cap:disableValue>
+                </cap:status>
+            </cap:activation>
         </configured>
     </capabilities>
 </resource>
