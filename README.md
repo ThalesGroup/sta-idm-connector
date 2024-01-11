@@ -25,7 +25,7 @@ The connector is meant to be compatible with the IdM Services using ConnId frame
 3. Restart the service (if required).
 4. Create a new connector instance and configure the basic configurations.
 
-   ![Basic Configuration](basic-config.png)
+   ![Basic Configuration](config.png)
 
 5. Follow next steps as per your IdM service.
 
